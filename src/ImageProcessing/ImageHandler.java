@@ -22,17 +22,17 @@
  * THE SOFTWARE.
  */
 
-package Main;
+package ImageProcessing;
 
 /**
  *
  * @author Aleksandr Šmailov
  */
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import static java.lang.Math.round;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
     
 public class ImageHandler {
@@ -42,6 +42,7 @@ public class ImageHandler {
     private int height;
     
     private int[] pixels;
+    private int[] paddedPixels;
     
     /**
      * Reads an image and creates array of 
@@ -53,8 +54,8 @@ public class ImageHandler {
             image = ImageIO.read(input);
             width = image.getWidth();
             height = image.getHeight();
-            
-            pixels = new int[width * height];
+            int size = width * height;
+            pixels = new int[size];
             
             int count = 0;
             for(int i=0; i<height; i++){
@@ -105,6 +106,43 @@ public class ImageHandler {
         return grayValues;
     }
     
+    public int[] getPaddedPixels(){
+        if(width == height){
+            return pixels;
+        }
+        int paddedSize;
+        int length;
+        int flag;
+        if(width > height){
+            length = width;
+            flag = 0;
+        } else {
+            length = height;
+            flag = 1;
+        }
+        paddedSize = length * length;
+        paddedPixels = new int[paddedSize];
+        int blackARGB = -16777216;
+        Arrays.fill(paddedPixels, blackARGB);
+        int count = 0;
+        int count2 = 0;
+//        for(int i=0; i<length; i++){
+//            for(int j=0; j<length; j++){
+//                if((i * height + j) == (i * length + j)){
+//                    paddedPixels[count] = pixels[count2];
+//                }
+//            }
+//        }
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
+                paddedPixels[i * length + j] = pixels[i * width + j];
+                //System.out.println(i * width + j);
+            }
+        }
+        
+        return paddedPixels;
+    }
+    
     /**
      * Snatches buffered image.
      * @return buffered image.
@@ -119,6 +157,5 @@ public class ImageHandler {
     public int[] getPixelsARGB() {
         return pixels;
     }
-    
 }
 
