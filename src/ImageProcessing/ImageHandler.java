@@ -43,6 +43,7 @@ public class ImageHandler {
     
     private int[] pixels;
     private int[] paddedPixels;
+    private int paddedImageLength;
     
     /**
      * Reads an image and creates array of 
@@ -102,14 +103,13 @@ public class ImageHandler {
             return pixels;
         }
         int paddedSize;
-        int length;
         // Set square length.
         if(width > height){
-            length = width;
+            paddedImageLength = width;
         } else {
-            length = height;
+            paddedImageLength = height;
         }
-        paddedSize = length * length;
+        paddedSize = paddedImageLength * paddedImageLength;
         paddedPixels = new int[paddedSize];
         // Fill array with black color.
         int blackARGB = -16777216;
@@ -117,7 +117,7 @@ public class ImageHandler {
         // Copy pixels to paddedPixels array.
         for(int i=0; i<height; i++){
             for(int j=0; j<width; j++){
-                paddedPixels[i * length + j] = pixels[i * width + j];
+                paddedPixels[i * paddedImageLength + j] = pixels[i * width + j];
             }
         }
         return paddedPixels;
@@ -135,6 +135,13 @@ public class ImageHandler {
      */
     public int[] getPixelsARGB() {
         return pixels;
+    }
+
+    /**
+     * @return length of padded image.
+     */
+    public int getPaddedImageLength() {
+        return paddedImageLength;
     }
 }
 
