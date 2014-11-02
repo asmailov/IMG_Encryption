@@ -26,9 +26,10 @@ package GUI;
 
 import ImageProcessing.ImageCreator;
 import ImageProcessing.ImageHandler;
+import Main.SquareDihedralGroup;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -41,7 +42,7 @@ public class DrawPanel extends JPanel implements Runnable{
     
     private int width, height;
     private int x0,y0;
-    private int xDrag, yDrag;
+    private int xDiff, yDiff;
     
     private static Thread animator;
     private int speed;
@@ -70,17 +71,15 @@ public class DrawPanel extends JPanel implements Runnable{
         for (int k = 0; k < a.length; k++){
             //System.out.println(a[k]);
         }
+        Point w = new Point(10,10);
+        SquareDihedralGroup.transform(w, 1, length);
+        System.out.println(w.toString());
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
             animator = new Thread(this, "Animation");
             animator.start();
         }
-    }
-    public static Image getImageFromArray(int[] pixels, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        image.getRaster().setPixels(0, 0, width, height, pixels);
-        return image;
     }
     
     /**
@@ -210,8 +209,8 @@ public class DrawPanel extends JPanel implements Runnable{
     /**
      * @return x coordinate of previous mouse location(one tick from current).
      */
-    public int getxDrag() {
-        return xDrag;
+    public int getxDiff() {
+        return xDiff;
     }
 
     /**
@@ -219,14 +218,14 @@ public class DrawPanel extends JPanel implements Runnable{
      * from current).
      */
     public void setxDiff(int xDiff) {
-        this.xDrag = xDiff;
+        this.xDiff = xDiff;
     }
 
     /**
      * @return y coordinate of previous mouse location(one tick from current).
      */
-    public int getyDrag() {
-        return yDrag;
+    public int getyDiff() {
+        return yDiff;
     }
 
     /**
@@ -234,6 +233,6 @@ public class DrawPanel extends JPanel implements Runnable{
      * from current).
      */
     public void setyDiff(int yDiff) {
-        this.yDrag = yDiff;
+        this.yDiff = yDiff;
     }
 }
