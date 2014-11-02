@@ -24,18 +24,26 @@
 
 package Main;
 
+import GUI.GUI;
+
 /**
  *
  * @author Aleksandr Šmailov
  */
-public class IMG_Encryption {
+public class Main {
+    private static GUI gui;
 
+    public Main(){
+        // Create window and set it visible.
+        gui = new GUI();
+        gui.setVisible(true);
+    }
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test.png");
-        
+        new Main();
     }
     
 }

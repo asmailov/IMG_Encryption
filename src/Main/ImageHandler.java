@@ -28,20 +28,23 @@ package Main;
  *
  * @author Aleksandr Šmailov
  */
-import java.awt.*;
+
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import static java.lang.Math.round;
 import javax.imageio.ImageIO;
     
 public class ImageHandler {
-    private Color[][] pixelColors;
+    
     private BufferedImage  image;
     private int width;
     private int height;
     
+    private int[] pixels;
+    
     /**
-     * Reads an image and creates array of colors of every pixel in the
-     * picture.
+     * Reads an image and creates array of 
      * @param file path to picture.
      */
     public ImageHandler(String file) {
@@ -51,23 +54,70 @@ public class ImageHandler {
             width = image.getWidth();
             height = image.getHeight();
             
-            pixelColors = new Color[height][width];
+            pixels = new int[width * height];
             
+            int count = 0;
             for(int i=0; i<height; i++){
                 for(int j=0; j<width; j++){
-                    pixelColors[i][j] = new Color(image.getRGB(j, i));
+//                    int rgb = image.getRGB(j, i);
+//                    int alpha = (rgb >> 24) & 0xff;
+//                    int red   = (rgb >> 16) & 0xff;
+//                    int green = (rgb >>  8) & 0xff;
+//                    int blue  = (rgb) & 0xff;
+//                    
+//                    pixels[count] = red;
+//                    count++;
+//                    pixels[count] = green;
+//                    count++;
+//                    pixels[count] = blue;
+//                    count++;
+//                    pixels[count] = alpha;
+//                    count++;
+                    pixels[count] = image.getRGB(j, i);
+                    count++;
                 }
              }
         } catch (Exception e) {
-            e.printStackTrace(System.out);
+            e.printStackTrace(System.err);
         }
     }
     
     /**
-     * @return array of pixel colors.
+     * @return array of grayscale pixel values.
      */
-    public Color[][] getPixelColors() {
-        return pixelColors;
+    public int[] getGrayValues(){
+        int[] grayValues = new int[pixels.length];
+        int count = 0;
+        int red,green,blue;
+        
+        for (int i = 0; i < pixels.length; i++){
+            red   = (pixels[i] >> 16) & 0xff;
+            green = (pixels[i] >>  8) & 0xff;
+            blue  = (pixels[i]) & 0xff;
+            
+            red = (int)round((red * 0.299));
+            green = (int)round((green * 0.587));
+            blue = (int)round((blue *0.114));
+            
+            grayValues[count] = red + green + blue;
+            count++;
+        }
+        return grayValues;
+    }
+    
+    /**
+     * Snatches buffered image.
+     * @return buffered image.
+     */
+    public BufferedImage getImage() {
+        return image;
+    }
+    /**
+     * @return array of pixels in the default RGB color model (TYPE_INT_ARGB) 
+     * and default sRGB colorspace.
+     */
+    public int[] getPixelsARGB() {
+        return pixels;
     }
     
 }
