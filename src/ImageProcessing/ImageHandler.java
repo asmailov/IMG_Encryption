@@ -54,26 +54,13 @@ public class ImageHandler {
             image = ImageIO.read(input);
             width = image.getWidth();
             height = image.getHeight();
+            
             int size = width * height;
             pixels = new int[size];
             
             int count = 0;
             for(int i=0; i<height; i++){
                 for(int j=0; j<width; j++){
-//                    int rgb = image.getRGB(j, i);
-//                    int alpha = (rgb >> 24) & 0xff;
-//                    int red   = (rgb >> 16) & 0xff;
-//                    int green = (rgb >>  8) & 0xff;
-//                    int blue  = (rgb) & 0xff;
-//                    
-//                    pixels[count] = red;
-//                    count++;
-//                    pixels[count] = green;
-//                    count++;
-//                    pixels[count] = blue;
-//                    count++;
-//                    pixels[count] = alpha;
-//                    count++;
                     pixels[count] = image.getRGB(j, i);
                     count++;
                 }
@@ -105,44 +92,36 @@ public class ImageHandler {
         }
         return grayValues;
     }
-    
+    /**
+     * Pads image with black color so we get square image.
+     * @return padded image's pixels.
+     */
     public int[] getPaddedPixels(){
+        // If it's square already simply return pixels.
         if(width == height){
             return pixels;
         }
         int paddedSize;
         int length;
-        int flag;
+        // Set square length.
         if(width > height){
             length = width;
-            flag = 0;
         } else {
             length = height;
-            flag = 1;
         }
         paddedSize = length * length;
         paddedPixels = new int[paddedSize];
+        // Fill array with black color.
         int blackARGB = -16777216;
         Arrays.fill(paddedPixels, blackARGB);
-        int count = 0;
-        int count2 = 0;
-//        for(int i=0; i<length; i++){
-//            for(int j=0; j<length; j++){
-//                if((i * height + j) == (i * length + j)){
-//                    paddedPixels[count] = pixels[count2];
-//                }
-//            }
-//        }
+        // Copy pixels to paddedPixels array.
         for(int i=0; i<height; i++){
             for(int j=0; j<width; j++){
                 paddedPixels[i * length + j] = pixels[i * width + j];
-                //System.out.println(i * width + j);
             }
         }
-        
         return paddedPixels;
     }
-    
     /**
      * Snatches buffered image.
      * @return buffered image.

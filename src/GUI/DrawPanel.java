@@ -54,7 +54,7 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test2.png");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
         g.drawImage(img,x0,y0-img.getHeight()+1,null);
