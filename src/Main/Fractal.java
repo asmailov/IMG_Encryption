@@ -24,6 +24,8 @@
 
 package Main;
 
+import java.awt.Point;
+
 /**
  * @author Aleksandr Šmailov
  */
@@ -36,24 +38,57 @@ public class Fractal {
         this.length = length;
     }
     
-    public void recursion(int[] pixels, int length){
+    public int[] recursion(int[] pixels, int length){
         int[] array1, array2, array3, array4;
-        
+        array1 = new int[length*length];
         for(int i = 0; i < length; i++){
             for(int j = 0; j < length; j++){
+                Point p = new Point(j, i);
                 if((i < length/2) && (j < length/2)){
-                    System.out.println("1");
+                    
+//                    System.out.println(p.toString());
+                    SquareDihedralGroup.transform(p, 1, length);
+                    p.x = p.x - length/2;
+//                    System.out.println(p.toString());
+//                    System.out.println("_______________");
+//                    System.out.println(j + " " + i);
+//                    System.out.println(i * length +j);
+//                    System.out.println(p.x + " " + p.y);
+//                    System.out.println(p.x * length + p.y);
+//                    int a = pixels[i * length + j];
+                    array1[p.y * length + p.x] = pixels[i * length + j];
+                    
                 }
                 if((i < length/2) && (j >= length/2)){
-                    System.out.println("2");
+//                    System.out.println(p.toString());
+                    SquareDihedralGroup.transform(p, 1, length);
+                    p.y = p.y - length/2;
+//                    System.out.println(p.toString());
+//                    System.out.println("_______________");
+                    //System.out.println("2");
+                    array1[p.y * length + p.x] = pixels[i * length + j];
                 }
                 if((i >= length/2) && (j < length/2)){
-                    System.out.println("3");
+//                    System.out.println(p.toString());
+                    SquareDihedralGroup.transform(p, 1, length);
+                    p.y = p.y + length/2;
+//                    System.out.println(p.toString());
+//                    System.out.println("_______________");
+                    
+                    //System.out.println("3");
+                    array1[p.y * length + p.x] = pixels[i * length + j];
                 }
                 if((i >= length/2) && (j >= length/2)){
-                    System.out.println("4");
+//                    System.out.println(p.toString());
+                    SquareDihedralGroup.transform(p, 1, length);
+                    p.x = p.x + length/2;
+//                    System.out.println(p.toString());
+//                    System.out.println("_______________");
+                    //System.out.println("4");
+                    array1[p.y * length + p.x] = pixels[i * length + j];
                 }
             }
         }
+        return array1;
     }
 }

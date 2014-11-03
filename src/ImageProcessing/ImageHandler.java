@@ -100,6 +100,7 @@ public class ImageHandler {
     public int[] getPaddedPixels(){
         // If it's square already simply return pixels.
         if(width == height){
+            paddedImageLength = width;
             return pixels;
         }
         int paddedSize;

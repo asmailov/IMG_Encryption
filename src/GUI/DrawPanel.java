@@ -56,7 +56,7 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.png");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
         g.drawImage(img,x0,y0-img.getHeight()+1,null);
@@ -74,10 +74,11 @@ public class DrawPanel extends JPanel implements Runnable{
         }
         Point w = new Point(10,10);
         SquareDihedralGroup.transform(w, 1, length);
-        System.out.println(w.toString());
         
         Fractal f = new Fractal(a,length);
-        f.recursion(pixels, length);
+        int[] d = f.recursion(a, length);
+        u = new ImageCreator(d, length, length);
+        img = u.createImage();
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
