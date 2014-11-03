@@ -56,7 +56,7 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face2.jpg");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
 //    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
@@ -69,18 +69,13 @@ public class DrawPanel extends JPanel implements Runnable{
         int[] a = i.getPaddedPixels();
         int length = i.getPaddedImageLength();
         ImageCreator u = new ImageCreator(a, length, length);
-        img = u.createImage();
-        for (int k = 0; k < a.length; k++){
-            //System.out.println(a[k]);
-        }
         
         int[] transf = {1,1,1,1};
         Fractal f = new Fractal(a, length, transf);
-        f.createFractal(3);
-        //int[] d = f.recursion(a, length);
-        u = new ImageCreator(f.newPixels, length, length);
-        //u = new ImageCreator(d, length, length);
+        f.createFractal(1);
+        u = new ImageCreator(f.getNewPixels(), length, length);
         img = u.createImage();
+        
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
@@ -89,6 +84,17 @@ public class DrawPanel extends JPanel implements Runnable{
         }
     }
     
+    private void fractal(int q){
+        int[] a = i.getPaddedPixels();
+        int length = i.getPaddedImageLength();
+        ImageCreator u;
+        
+        int[] transf = {1,1,1,1};
+        Fractal f = new Fractal(a, length, transf);
+        f.createFractal(q);
+        u = new ImageCreator(f.getNewPixels(), length, length);
+        img = u.createImage();
+    }
     /**
      * Method draws X and Y axes on the JPanel.
      * @param g Graphics2D
@@ -160,7 +166,19 @@ public class DrawPanel extends JPanel implements Runnable{
     @Override
     public void run() {
         while(true){
-            repaint();
+            
+            try {
+                for (int i = 1; i <= 7; i++) {
+                    
+                    fractal(i);
+                    repaint();
+                    Thread.sleep(1000);
+                }
+                
+                
+            } catch (InterruptedException ex) {
+                ex.printStackTrace(System.err);
+            }
         }
     }
     

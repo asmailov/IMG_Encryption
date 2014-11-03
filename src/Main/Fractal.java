@@ -25,96 +25,101 @@
 package Main;
 
 import java.awt.Point;
-import java.util.Arrays;
 
 /**
  * @author Aleksandr Šmailov
  */
-public class Fractal {
+public class Fractal{
     private final int[] pixels;
     private final int length;
     private int[] transformations;
     private int iterations;
-    private int currIteration;
-    public int[] newPixels;
+    private int levelReached;
+    
+    private int[] newPixels;
 
+    /**
+     * @param pixels pixels of the image.
+     * @param length length of the side of the image.
+     * @param transf transformation array.
+     */
     public Fractal(int[] pixels, int length, int[] transf) {
         this.pixels = pixels;
         this.length = length;
-        //this.newPixels = this.pixels.clone();
         this.newPixels = new int[length*length];
         setTransformations(transf);
     }
     
-    public void createFractal(int iter){
+    /**
+     * Creates fractal and returns the amount of iterations that were executed.
+     * @param iter amount of iterations.
+     * @return level reached.
+     */
+    public int createFractal(int iter){
         try{
             setIterations(iter);
-            currIteration = 0;
             recursion(pixels, length, 0, 0, 0);
         } catch (Exception e){
             e.printStackTrace(System.err);
         }
+        return levelReached;
     }
     
+    /**
+     * Main function of creating fractal from the image.
+     * @param pixels pixels array of current level.
+     * @param length length of the pixels array.
+     * @param x x coordinate of difference vector.
+     * @param y y coordinate of difference vector.
+     * @param level current level in recursion.
+     */
     public void recursion(int[] pixels, int length, int x, int y, int level){
+        // Once we reach iterations level we return.
         if (level == iterations){
+            levelReached = level;
             return;
         }
+        // If we reach 1 pixel length we return.
         if (length <= 1){
+            levelReached = level;
             return;
         }
+        // Increase level.
         level += 1;
-        
+        // Calculate half length so we can use this variable to divide current
+        // image part into 4 sections.
         int halfLen = length / 2;
-        
+        // Special ocassion when we can't divide current image part 
+        // symetrically needs to be processed, so we make a flag.
         boolean flag = false;
         if( length % 2 != 0){
             flag = true;
         }
-        float halfLenF = length / 2f;
-        int fix = 0;
-        if (halfLen != halfLenF){
-            fix = 1;
-        }
+        // Transformation coefficient must be 1 for the image fractal.
         float coeff = 1f;
-        
+        // Arrays for new image divisions.
         int[] array0, array1, array2, array3;
-        
-        //array1 = new int[length*length];
         array0 = new int[halfLen * halfLen];
         array1 = new int[halfLen * halfLen];
         array2 = new int[halfLen * halfLen];
         array3 = new int[halfLen * halfLen];
+        
         for(int i = 0; i < length; i++){
             for(int j = 0; j < length; j++){
+                // Create new point at the current location.
                 Point p = new Point(j, i);
+                // Transform at 1'st position.
                 if((i < halfLen) && (j < halfLen)){
-//                    System.out.println("old"+p);
                     SquareDihedralGroup.transform(p, transformations[0],
                                                   coeff, halfLen);
-//                    System.out.println(p.toString());
-//                    System.out.println("_______________");
-//                    array1[p.y * length + p.x] = pixels[i * length + j];
-                    //array0[count[0]] = pixels[i * length + j];
-//                    System.out.println(p);
-                    //System.out.println(i + " " + j);
-//                    System.out.println(halfLen + "  "+ j);
-                    //System.out.println(length);
                     array0[p.y * halfLen + p.x] = pixels[i * length + j];
                 }
+                // Transform at 2'nd position.
                 if(!flag){
                     if((i < halfLen) && (j >= halfLen)){
-    //                    System.out.println(p.toString());
                         p.setLocation(p.getX() - halfLen, p.getY());
                         SquareDihedralGroup.transform(p, transformations[1],
                                                       coeff, halfLen);
-//                        p.setLocation(p.getX(), p.getY());
-    //                    System.out.println(p.toString());
-    //                    System.out.println("_______________");
-    //                    array1[p.y * length + p.x] = pixels[i * length + j];
-    //                    array1[count[1]] = pixels[i * length + j];
-
-                        //System.out.println(p.y * halfLen + p.x-halfLen - fix);
                         array1[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
@@ -123,44 +128,32 @@ public class Fractal {
                         p.setLocation(p.getX() - halfLen-1, p.getY());
                         SquareDihedralGroup.transform(p, transformations[1],
                                                       coeff, halfLen);
-//                        p.setLocation(p.getX() + halfLen, p.getY());
                         array1[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 }
+                // Transform at 3'rd position.
                 if(!flag){
                     if((i >= halfLen) && (j < halfLen)){
-        //                    System.out.println(p.toString());
                         p.setLocation(p.getX(), p.getY() - halfLen);
                         SquareDihedralGroup.transform(p, transformations[2],
                                                       coeff, halfLen);
-        //                    p.setLocation(p.getX(), p.getY() + halfLen);
-        //                    System.out.println(p.toString());
-        //                    System.out.println("_______________");
-        //                    array1[p.y * length + p.x] = pixels[i * length + j];
-        //                    array2[count[2]] = pixels[i * length + j];
                         array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j < halfLen)){
                         
                         p.setLocation(p.getX(), p.getY() - halfLen-1);
-                        //System.out.println(p);
                         SquareDihedralGroup.transform(p, transformations[2],
                                                       coeff, halfLen);
                         array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 }
+                // Transform at 4'th position.
                 if(!flag){
                     if((i >= halfLen) && (j >= halfLen)){
-    //                    System.out.println(p.toString());
                         p.setLocation(p.getX() - halfLen, p.getY() - halfLen);
                         SquareDihedralGroup.transform(p, transformations[3],
                                                       coeff, halfLen);
-//                        p.setLocation(p.getX() + halfLen, p.getY() + halfLen);
-    //                    System.out.println(p.toString());
-    //                    System.out.println("_______________");
-    //                    array1[p.y * length + p.x] = pixels[i * length + j];
-    //                    array3[count[3]] = pixels[i * length + j];
                         array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
@@ -168,36 +161,41 @@ public class Fractal {
                         p.setLocation(p.getX() - halfLen-1, p.getY() - halfLen-1);
                         SquareDihedralGroup.transform(p, transformations[3],
                                                       coeff, halfLen);
-                        //p.setLocation(p.getX() + halfLen, p.getY() + halfLen);
                         array3[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 }
             }
         }
+        // Transfer pixel data from partition 1 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + j+x] = array0[i * halfLen + j];
+                newPixels[(i+y) * this.length + (j + x)] = 
+                        array0[i * halfLen + j];
             }
         }
+        // Transfer pixel data from partition 2 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + j+x+halfLen] = array1[i * halfLen + j];
+                newPixels[(i+y) * this.length + (j + x +halfLen)] = 
+                        array1[i * halfLen + j];
             }
         }
-//        System.out.println(x + " " + y);
+        // Transfer pixel data from partition 3 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen) * this.length  + j+x] = array2[i * halfLen + j];
+                newPixels[(i+y+halfLen) * this.length  + (j + x)] = 
+                        array2[i * halfLen + j];
             }
         }
-//        if(level == 1) {
-//            Arrays.fill(newPixels, 0);
-//        }
+        // Transfer pixel data from partition 4 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen) * this.length  + j+x+halfLen] = array3[i * halfLen + j];
+                newPixels[(i+y+halfLen) * this.length  + (j + x + halfLen)] = 
+                        array3[i * halfLen + j];
             }
         }
+        // Use created arrays of pixels to go deeper until we reach
+        // level = iterations or arrays consist of one pixel.
         recursion(array0, halfLen, x, y, level);
         recursion(array1, halfLen, x+halfLen, y, level);
         recursion(array2, halfLen, x, y+halfLen, level);
@@ -240,6 +238,14 @@ public class Fractal {
             err_message = "Transformation array must be of length 4!";
             throw new IllegalArgumentException(err_message);
         }
+    }
+
+    /**
+     * Get pixels of the transformed image.
+     * @return pixels of the transformed image.
+     */
+    public int[] getNewPixels() {
+        return newPixels;
     }
     
     
