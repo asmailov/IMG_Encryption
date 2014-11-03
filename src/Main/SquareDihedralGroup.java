@@ -31,7 +31,8 @@ import java.awt.Point;
  */
 public class SquareDihedralGroup {
     
-    public static void transform(Point p, int type, int vectorLength){
+    public static void transform(Point p, int type, float coefficient, 
+                                 int vectorLength){
 //        switch (type){
 //            case 0: p.setLocation(p.getX()/2, p.getY()/2);
 //                    break;
@@ -72,6 +73,9 @@ public class SquareDihedralGroup {
                 break;
             case 7: p.setLocation(-p.getX() + vectorLength, p.getY());
                 break;
+        }
+        if(type >= 0 && type < 8){
+            p.setLocation(p.getX() * coefficient, p.getY() * coefficient);
         }
     }
 }

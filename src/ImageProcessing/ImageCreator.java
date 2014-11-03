@@ -96,9 +96,14 @@ public class ImageCreator {
      * @param height height of the image.
      * @return BufferedImage.
      */
-    private static BufferedImage getImageFromArray(int[] pixels, int width, int height) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    private static BufferedImage getImageFromArray(int[] pixels, int width, 
+                                                   int height) {
+        // Create buffered image.
+        BufferedImage image = new BufferedImage(width, height, 
+                                                BufferedImage.TYPE_INT_ARGB);
+        // Set image's pixels.
         image.getRaster().setPixels(0, 0, width, height, pixels);
+        // Return newly created image.
         return image;
     }
 }

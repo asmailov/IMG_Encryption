@@ -72,10 +72,9 @@ public class DrawPanel extends JPanel implements Runnable{
         for (int k = 0; k < a.length; k++){
             //System.out.println(a[k]);
         }
-        Point w = new Point(10,10);
-        SquareDihedralGroup.transform(w, 1, length);
         
-        Fractal f = new Fractal(a,length);
+        int[] transf = {1,2,3,4};
+        Fractal f = new Fractal(a, length, transf);
         int[] d = f.recursion(a, length);
         u = new ImageCreator(d, length, length);
         img = u.createImage();
