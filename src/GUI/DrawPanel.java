@@ -57,6 +57,7 @@ public class DrawPanel extends JPanel implements Runnable{
         init();
     }
     ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face2.jpg");
+//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
         g.drawImage(img,x0,y0-img.getHeight()+1,null);
@@ -121,7 +122,7 @@ public class DrawPanel extends JPanel implements Runnable{
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                              RenderingHints.VALUE_ANTIALIAS_ON);
         // Draw axes.
-        drawAxes(g2d);
+        //drawAxes(g2d);
         //drawPixels(g2d);
         drawImage(g2d);
     }

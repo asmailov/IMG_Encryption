@@ -41,7 +41,7 @@ public class Fractal {
     public Fractal(int[] pixels, int length, int[] transf) {
         this.pixels = pixels;
         this.length = length;
-        this.newPixels = this.pixels.clone();
+        //this.newPixels = this.pixels.clone();
         this.newPixels = new int[length*length];
         setTransformations(transf);
     }
@@ -63,6 +63,8 @@ public class Fractal {
         if (length <= 1){
             return;
         }
+        level += 1;
+        
         int halfLen = length / 2;
         
         boolean flag = false;
@@ -136,7 +138,7 @@ public class Fractal {
         //                    System.out.println("_______________");
         //                    array1[p.y * length + p.x] = pixels[i * length + j];
         //                    array2[count[2]] = pixels[i * length + j];
-                        array2[(p.y) * halfLen + p.x] = pixels[i * length + j];
+                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j < halfLen)){
@@ -145,7 +147,7 @@ public class Fractal {
                         //System.out.println(p);
                         SquareDihedralGroup.transform(p, transformations[2],
                                                       coeff, halfLen);
-                        array2[(p.y) * halfLen + p.x] = pixels[i * length + j];
+                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 }
                 if(!flag){
@@ -154,12 +156,12 @@ public class Fractal {
                         p.setLocation(p.getX() - halfLen, p.getY() - halfLen);
                         SquareDihedralGroup.transform(p, transformations[3],
                                                       coeff, halfLen);
-                        p.setLocation(p.getX() + halfLen, p.getY() + halfLen);
+//                        p.setLocation(p.getX() + halfLen, p.getY() + halfLen);
     //                    System.out.println(p.toString());
     //                    System.out.println("_______________");
     //                    array1[p.y * length + p.x] = pixels[i * length + j];
     //                    array3[count[3]] = pixels[i * length + j];
-                        array3[(p.y - halfLen) * halfLen + p.x-halfLen] = pixels[i * length + j];
+                        array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j > halfLen)){
@@ -167,12 +169,11 @@ public class Fractal {
                         SquareDihedralGroup.transform(p, transformations[3],
                                                       coeff, halfLen);
                         //p.setLocation(p.getX() + halfLen, p.getY() + halfLen);
-                        array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
+                        array3[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
                 }
             }
         }
-        level += 1;
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
                 newPixels[(i+y) * this.length + j+x] = array0[i * halfLen + j];
@@ -183,24 +184,24 @@ public class Fractal {
                 newPixels[(i+y) * this.length + j+x+halfLen] = array1[i * halfLen + j];
             }
         }
-        
+//        System.out.println(x + " " + y);
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
                 newPixels[(i+y+halfLen) * this.length  + j+x] = array2[i * halfLen + j];
             }
         }
-        
+//        if(level == 1) {
+//            Arrays.fill(newPixels, 0);
+//        }
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
                 newPixels[(i+y+halfLen) * this.length  + j+x+halfLen] = array3[i * halfLen + j];
             }
-        };
-        recursion(array0, halfLen, x+0, y+0, level);
-        recursion(array1, halfLen, x+halfLen, y+0, level);
-        recursion(array2, halfLen, x+0, y+halfLen, level);
-        recursion(array3, halfLen, y+halfLen, x+halfLen, level);
-        
-        return;
+        }
+        recursion(array0, halfLen, x, y, level);
+        recursion(array1, halfLen, x+halfLen, y, level);
+        recursion(array2, halfLen, x, y+halfLen, level);
+        recursion(array3, halfLen, x+halfLen, y+halfLen, level);
     }
     
     // Setters.
