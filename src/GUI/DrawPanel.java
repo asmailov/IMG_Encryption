@@ -56,8 +56,8 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test2.jpg");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face3.jpg");
+//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
         g.drawImage(img,x0,y0-img.getHeight()+1,null);
@@ -68,17 +68,19 @@ public class DrawPanel extends JPanel implements Runnable{
     private void init(){
         int[] a = i.getPaddedPixels();
         int length = i.getPaddedImageLength();
+        
         ImageCreator u = new ImageCreator(a, length, length);
         
         int[] transf = {1,1,1,1};
         Fractal f = new Fractal(a, length, transf);
-        f.createFractal(1);
-        //u = new ImageCreator(f.getNewPixels(), length, length);
-        //img = u.createImage();
+        f.createFractal(10);
+//        u = new ImageCreator(f.getNewPixels(), length, length);
+//        img = u.createImage();
         
         Fractal ff = new Fractal(f.getNewPixels(), length, transf);
         ff.inverseTransformations();
-        ff.createFractal(1);
+//        ff.createFractal(1);
+        ff.decrypt(10);
         u = new ImageCreator(ff.getNewPixels(), length, length);
         img = u.createImage();
         start = 0;
@@ -176,7 +178,7 @@ public class DrawPanel extends JPanel implements Runnable{
 //                for (int i = 1; i <= 7; i++) {
 //                    
 //                    fractal(i);
-//                    repaint();
+                    repaint();
 //                    Thread.sleep(1000);
 //                }
 //                

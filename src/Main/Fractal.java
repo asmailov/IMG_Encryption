@@ -46,7 +46,8 @@ public class Fractal{
     public Fractal(int[] pixels, int length, int[] transf) {
         this.pixels = pixels;
         this.length = length;
-        this.newPixels = new int[length*length];
+        //this.newPixels = new int[length*length];
+        this.newPixels = this.pixels.clone();
         setTransf(transf);
     }
     
@@ -64,7 +65,17 @@ public class Fractal{
     public int createFractal(int iter){
         try{
             setIterations(iter);
-            encryptionRecursion(pixels, length, 0, 0, 0);
+            recursion(pixels, length, 0, 0, 0);
+        } catch (IllegalArgumentException e){
+            e.printStackTrace(System.err);
+        }
+        return levelReached;
+    }
+    
+    public int decrypt(int iter){
+        try{
+            setIterations(iter);
+            recursion(pixels, length, 0, 0, 0);
         } catch (IllegalArgumentException e){
             e.printStackTrace(System.err);
         }
@@ -79,7 +90,7 @@ public class Fractal{
      * @param y y coordinate of difference vector.
      * @param level current level in recursion.
      */
-    private void encryptionRecursion(int[] pixels, int length, int x, 
+    private void recursion(int[] pixels, int length, int x, 
                                      int y, int level){
         // Once we reach iterations level we return.
         if (level == iterations){
@@ -99,6 +110,7 @@ public class Fractal{
         // Special ocassion when we can't divide current image part 
         // symetrically needs to be processed, so we make a flag.
         boolean flag = false;
+        
         if( length % 2 != 0){
             flag = true;
         }
@@ -173,6 +185,10 @@ public class Fractal{
                 }
             }
         }
+        int fix = 0;
+        if (flag){
+            fix = 1;
+        }
         // Transfer pixel data from partition 1 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
@@ -183,30 +199,30 @@ public class Fractal{
         // Transfer pixel data from partition 2 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + (j + x +halfLen)] = 
+                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
                         array1[i * halfLen + j];
             }
         }
         // Transfer pixel data from partition 3 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen) * this.length  + (j + x)] = 
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
                         array2[i * halfLen + j];
             }
         }
         // Transfer pixel data from partition 4 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen) * this.length  + (j + x + halfLen)] = 
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
                         array3[i * halfLen + j];
             }
         }
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
-        encryptionRecursion(array0, halfLen, x, y, level);
-        encryptionRecursion(array1, halfLen, x+halfLen, y, level);
-        encryptionRecursion(array2, halfLen, x, y+halfLen, level);
-        encryptionRecursion(array3, halfLen, x+halfLen, y+halfLen, level);
+        recursion(array0, halfLen, x, y, level);
+        recursion(array1, halfLen, x+halfLen+fix, y, level);
+        recursion(array2, halfLen, x, y+halfLen+fix, level);
+        recursion(array3, halfLen, x+halfLen+fix, y+halfLen+fix, level);
     }
     
     // Setters.
