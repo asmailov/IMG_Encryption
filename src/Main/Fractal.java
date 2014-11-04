@@ -32,11 +32,11 @@ import java.awt.Point;
 public class Fractal{
     private final int[] pixels;
     private final int length;
-    private int[] transformations;
+    private int[] transf;
     private int iterations;
     private int levelReached;
     
-    private int[] newPixels;
+    public int[] newPixels;
 
     /**
      * @param pixels pixels of the image.
@@ -47,7 +47,13 @@ public class Fractal{
         this.pixels = pixels;
         this.length = length;
         this.newPixels = new int[length*length];
-        setTransformations(transf);
+        setTransf(transf);
+    }
+    
+    public void inverseTransformations(){
+        for (int i = 0; i < transf.length; i++){
+            transf[i] = SquareDihedralGroup.getInverse(transf[i]);
+        }
     }
     
     /**
@@ -58,8 +64,8 @@ public class Fractal{
     public int createFractal(int iter){
         try{
             setIterations(iter);
-            recursion(pixels, length, 0, 0, 0);
-        } catch (Exception e){
+            encryptionRecursion(pixels, length, 0, 0, 0);
+        } catch (IllegalArgumentException e){
             e.printStackTrace(System.err);
         }
         return levelReached;
@@ -73,7 +79,8 @@ public class Fractal{
      * @param y y coordinate of difference vector.
      * @param level current level in recursion.
      */
-    public void recursion(int[] pixels, int length, int x, int y, int level){
+    private void encryptionRecursion(int[] pixels, int length, int x, 
+                                     int y, int level){
         // Once we reach iterations level we return.
         if (level == iterations){
             levelReached = level;
@@ -110,7 +117,7 @@ public class Fractal{
                 Point p = new Point(j, i);
                 // Transform at 1'st position.
                 if((i < halfLen) && (j < halfLen)){
-                    SquareDihedralGroup.transform(p, transformations[0],
+                    SquareDihedralGroup.transform(p, transf[0],
                                                   coeff, halfLen);
                     array0[p.y * halfLen + p.x] = pixels[i * length + j];
                 }
@@ -118,7 +125,7 @@ public class Fractal{
                 if(!flag){
                     if((i < halfLen) && (j >= halfLen)){
                         p.setLocation(p.getX() - halfLen, p.getY());
-                        SquareDihedralGroup.transform(p, transformations[1],
+                        SquareDihedralGroup.transform(p, transf[1],
                                                       coeff, halfLen);
                         array1[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
@@ -126,7 +133,7 @@ public class Fractal{
                     if((i < halfLen) && (j > halfLen)){
                         
                         p.setLocation(p.getX() - halfLen-1, p.getY());
-                        SquareDihedralGroup.transform(p, transformations[1],
+                        SquareDihedralGroup.transform(p, transf[1],
                                                       coeff, halfLen);
                         array1[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
@@ -135,7 +142,7 @@ public class Fractal{
                 if(!flag){
                     if((i >= halfLen) && (j < halfLen)){
                         p.setLocation(p.getX(), p.getY() - halfLen);
-                        SquareDihedralGroup.transform(p, transformations[2],
+                        SquareDihedralGroup.transform(p, transf[2],
                                                       coeff, halfLen);
                         array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
@@ -143,7 +150,7 @@ public class Fractal{
                     if((i > halfLen) && (j < halfLen)){
                         
                         p.setLocation(p.getX(), p.getY() - halfLen-1);
-                        SquareDihedralGroup.transform(p, transformations[2],
+                        SquareDihedralGroup.transform(p, transf[2],
                                                       coeff, halfLen);
                         array2[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
@@ -152,14 +159,14 @@ public class Fractal{
                 if(!flag){
                     if((i >= halfLen) && (j >= halfLen)){
                         p.setLocation(p.getX() - halfLen, p.getY() - halfLen);
-                        SquareDihedralGroup.transform(p, transformations[3],
+                        SquareDihedralGroup.transform(p, transf[3],
                                                       coeff, halfLen);
                         array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j > halfLen)){
                         p.setLocation(p.getX() - halfLen-1, p.getY() - halfLen-1);
-                        SquareDihedralGroup.transform(p, transformations[3],
+                        SquareDihedralGroup.transform(p, transf[3],
                                                       coeff, halfLen);
                         array3[p.y * halfLen + p.x] = pixels[i * length + j];
                     }
@@ -196,10 +203,10 @@ public class Fractal{
         }
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
-        recursion(array0, halfLen, x, y, level);
-        recursion(array1, halfLen, x+halfLen, y, level);
-        recursion(array2, halfLen, x, y+halfLen, level);
-        recursion(array3, halfLen, x+halfLen, y+halfLen, level);
+        encryptionRecursion(array0, halfLen, x, y, level);
+        encryptionRecursion(array1, halfLen, x+halfLen, y, level);
+        encryptionRecursion(array2, halfLen, x, y+halfLen, level);
+        encryptionRecursion(array3, halfLen, x+halfLen, y+halfLen, level);
     }
     
     // Setters.
@@ -223,7 +230,7 @@ public class Fractal{
      * @throws IllegalArgumentException when array length is not equal to 4 or
      * array elements are not in 0-7 range.
      */
-    private void setTransformations(int[] transf) 
+    private void setTransf(int[] transf) 
             throws IllegalArgumentException {
         String err_message;
         if(transf.length == 4){
@@ -233,7 +240,7 @@ public class Fractal{
                     throw new IllegalArgumentException(err_message);
                 }
             }
-            this.transformations = transf;
+            this.transf = transf;
         } else {
             err_message = "Transformation array must be of length 4!";
             throw new IllegalArgumentException(err_message);

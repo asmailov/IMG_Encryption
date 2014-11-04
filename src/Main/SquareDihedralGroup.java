@@ -58,4 +58,27 @@ public class SquareDihedralGroup {
             p.setLocation(p.getX() * coefficient, p.getY() * coefficient);
         }
     }
+    
+    public static int getInverse(int transform){
+        int inverse = 0;
+        switch (transform){
+            case 0: inverse = 0;
+                break;
+            case 1: inverse = 3;
+                break;
+            case 2: inverse = 2;
+                break;
+            case 3: inverse = 1;
+                break;
+            case 4: inverse = 4;
+                break;
+            case 5: inverse = 5;
+                break;
+            case 6: inverse = 6;
+                break;
+            case 7: inverse = 7;
+                break;
+        }
+        return inverse;
+    }
 }

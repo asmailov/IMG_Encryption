@@ -56,8 +56,8 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
-//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
+//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face.jpg");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test2.jpg");
     private BufferedImage img;// = i.getImage();
     private void drawImage(Graphics2D g){
         g.drawImage(img,x0,y0-img.getHeight()+1,null);
@@ -73,9 +73,14 @@ public class DrawPanel extends JPanel implements Runnable{
         int[] transf = {1,1,1,1};
         Fractal f = new Fractal(a, length, transf);
         f.createFractal(1);
-        u = new ImageCreator(f.getNewPixels(), length, length);
-        img = u.createImage();
+        //u = new ImageCreator(f.getNewPixels(), length, length);
+        //img = u.createImage();
         
+        Fractal ff = new Fractal(f.getNewPixels(), length, transf);
+        ff.inverseTransformations();
+        ff.createFractal(1);
+        u = new ImageCreator(ff.getNewPixels(), length, length);
+        img = u.createImage();
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
@@ -167,18 +172,18 @@ public class DrawPanel extends JPanel implements Runnable{
     public void run() {
         while(true){
             
-            try {
-                for (int i = 1; i <= 7; i++) {
-                    
-                    fractal(i);
-                    repaint();
-                    Thread.sleep(1000);
-                }
-                
-                
-            } catch (InterruptedException ex) {
-                ex.printStackTrace(System.err);
-            }
+//            try {
+//                for (int i = 1; i <= 7; i++) {
+//                    
+//                    fractal(i);
+//                    repaint();
+//                    Thread.sleep(1000);
+//                }
+//                
+//                
+//            } catch (InterruptedException ex) {
+//                ex.printStackTrace(System.err);
+//            }
         }
     }
     
