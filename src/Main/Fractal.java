@@ -36,7 +36,7 @@ public class Fractal{
     private int iterations;
     private int levelReached;
     
-    public int[] newPixels;
+    private final int[] newPixels;
 
     /**
      * @param pixels pixels of the image.
@@ -189,34 +189,37 @@ public class Fractal{
         if (flag){
             fix = 1;
         }
-        // Transfer pixel data from partition 1 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + (j + x)] = 
-                        array0[i * halfLen + j];
+        
+        //if((level + 1 == iterations) || (iterations == 1)){
+            // Transfer pixel data from partition 1 to real image.
+            for(int i = 0; i < halfLen; i++){
+                for(int j = 0; j < halfLen; j++){
+                    newPixels[(i+y) * this.length + (j + x)] = 
+                            array0[i * halfLen + j];
+                }
             }
-        }
-        // Transfer pixel data from partition 2 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
-                        array1[i * halfLen + j];
+            // Transfer pixel data from partition 2 to real image.
+            for(int i = 0; i < halfLen; i++){
+                for(int j = 0; j < halfLen; j++){
+                    newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+                            array1[i * halfLen + j];
+                }
             }
-        }
-        // Transfer pixel data from partition 3 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
-                        array2[i * halfLen + j];
+            // Transfer pixel data from partition 3 to real image.
+            for(int i = 0; i < halfLen; i++){
+                for(int j = 0; j < halfLen; j++){
+                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
+                            array2[i * halfLen + j];
+                }
             }
-        }
-        // Transfer pixel data from partition 4 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
-                        array3[i * halfLen + j];
+            // Transfer pixel data from partition 4 to real image.
+            for(int i = 0; i < halfLen; i++){
+                for(int j = 0; j < halfLen; j++){
+                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
+                            array3[i * halfLen + j];
+                }
             }
-        }
+        //}
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
         recursion(array0, halfLen, x, y, level);

@@ -27,10 +27,8 @@ package GUI;
 import ImageProcessing.ImageCreator;
 import ImageProcessing.ImageHandler;
 import Main.Fractal;
-import Main.SquareDihedralGroup;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -46,9 +44,19 @@ public class DrawPanel extends JPanel implements Runnable{
     private int xDiff, yDiff;
     
     private static Thread animator;
+    private boolean animating;
+    private int drawingMode;
     private int speed;
     private int start;
-    private int[] pixels;
+    
+    private String imagePath;
+    private BufferedImage imageToEncrypt;
+    private BufferedImage encryptedImage;
+    private ImageHandler handler;
+    private ImageCreator creator;
+    private Fractal fractal;
+    private int iterations;
+    private int[] transf;
     
     /**
      * DrawPanel constructor.
@@ -56,39 +64,60 @@ public class DrawPanel extends JPanel implements Runnable{
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face3.jpg");
+    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face2.jpg");
 //    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
     private BufferedImage img;// = i.getImage();
-    private void drawImage(Graphics2D g){
-        g.drawImage(img,x0,y0-img.getHeight()+1,null);
+    
+    private void drawImage(Graphics2D g, BufferedImage image){
+        g.drawImage(image,x0,y0-image.getHeight()+1,null);
     }
     /**
      * Initialize variables.
      */
     private void init(){
-        int[] a = i.getPaddedPixels();
-        int length = i.getPaddedImageLength();
+        // Drawing mode 0 means no image drawing at all.
+        drawingMode = 0;
+        animating = false;
         
-        ImageCreator u = new ImageCreator(a, length, length);
+        transf = new int[4];
         
-        int[] transf = {1,1,1,1};
-        Fractal f = new Fractal(a, length, transf);
-        f.createFractal(10);
-//        u = new ImageCreator(f.getNewPixels(), length, length);
+        iterations = 1;
+//        int[] a = i.getPaddedPixels();
+//        int length = i.getPaddedImageLength();
+//        
+//        ImageCreator u = new ImageCreator(a, length, length);
+//        
+//        int[] transf = {1,1,1,1};
+//        Fractal f = new Fractal(a, length, transf);
+//        f.createFractal(8);
+////        u = new ImageCreator(f.getNewPixels(), length, length);
+////        img = u.createImage();
+//        
+//        Fractal ff = new Fractal(f.getNewPixels(), length, transf);
+//        ff.inverseTransformations();
+////        ff.createFractal(1);
+//        ff.decrypt(8);
+//        u = new ImageCreator(ff.getNewPixels(), length, length);
 //        img = u.createImage();
-        
-        Fractal ff = new Fractal(f.getNewPixels(), length, transf);
-        ff.inverseTransformations();
-//        ff.createFractal(1);
-        ff.decrypt(10);
-        u = new ImageCreator(ff.getNewPixels(), length, length);
-        img = u.createImage();
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
             animator = new Thread(this, "Animation");
             animator.start();
         }
+    }
+    
+    public int encryptImage(){
+        handler = new ImageHandler(getImagePath());
+        fractal = new Fractal(handler.getPaddedPixels(),
+                              handler.getPaddedImageLength(),
+                              getTransf());
+        int iterReached = fractal.createFractal(getIterations());
+        creator = new ImageCreator(fractal.getNewPixels(), 
+                                   handler.getPaddedImageLength(),
+                                   handler.getPaddedImageLength());
+        setEncryptedImage(creator.createImage());
+        return iterReached;
     }
     
     private void fractal(int q){
@@ -137,7 +166,14 @@ public class DrawPanel extends JPanel implements Runnable{
         // Draw axes.
         //drawAxes(g2d);
         //drawPixels(g2d);
-        drawImage(g2d);
+        switch (drawingMode){
+                case 0: 
+                        break;
+                case 1: drawImage(g2d, imageToEncrypt);
+                        break;
+                case 2: drawImage(g2d, encryptedImage);
+                        break;
+        }
     }
     
     /**
@@ -266,5 +302,54 @@ public class DrawPanel extends JPanel implements Runnable{
      */
     public void setyDiff(int yDiff) {
         this.yDiff = yDiff;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public boolean isAnimating() {
+        return animating;
+    }
+
+    public void setAnimating(boolean animating) {
+        this.animating = animating;
+    }
+
+    public void setImageToEncrypt(BufferedImage imageToEncrypt) {
+        this.imageToEncrypt = imageToEncrypt;
+    }
+
+    public void setEncryptedImage(BufferedImage encryptedImage) {
+        this.encryptedImage = encryptedImage;
+    }
+    
+    public void setDrawingMode(int drawingMode) throws IllegalArgumentException{
+        if(drawingMode < 0 || drawingMode > 2){
+            String err = "Drawing mode must be in 0-2 range!";
+            throw new IllegalArgumentException(err);
+        } else {
+            this.drawingMode = drawingMode;
+        }
+    }
+
+    public void setIterations(int iterations) {
+        this.iterations = iterations;
+    }
+    
+    public int getIterations() {
+        return iterations;
+    }
+    
+    public void setTransf(int i, int transf){
+        this.transf[i] = transf;
+    }
+
+    public int[] getTransf() {
+        return transf;
     }
 }
