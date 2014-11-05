@@ -123,15 +123,65 @@ public class DrawPanel extends JPanel implements Runnable{
             setCropWidth(handler.getPaddedImageLength());
             setCropHeight(handler.getPaddedImageLength());
         }
-//        setEncryptedDecryptedImage(creator.createImage());
-        setEncryptedDecryptedImage(handler.cropImage(creator.createImage(),
-                                   getCropWidth(), getCropHeight()));
+        BufferedImage img = creator.createImage();
+        BufferedImage img2 = handler.cropImage(img, getCropWidth(), 
+                                               getCropHeight());
+        if(img2 != null){
+            setEncryptedDecryptedImage(img2);
+        } else {
+            setEncryptedDecryptedImage(img);
+        }
+        return iterReached;
+    }
+    
+    private int checkMaxLevel(){
+        handler = new ImageHandler(getImagePath());
+        fractal = new Fractal(handler.getPaddedPixels(),
+                              handler.getPaddedImageLength(),
+                              getTransf());
+        int iterReached = fractal.createFractal(getIterations());
         return iterReached;
     }
     
     public void createFrames(){
+        int iter;
+        if(getIterations() < checkMaxLevel()){
+            iter = getIterations();
+        } else {
+            iter = checkMaxLevel();
+        }
+        frames = new BufferedImage[iter+1];
+        frames[0] = imageToEncryptDecrypt;
         if(getAnimationMode() == 0){
-//            for(int i = 1; i < getIterations(); i)
+            for(int i = 1; i <= iter; i++){
+                fractal.createFractal(i);
+                creator = new ImageCreator(fractal.getNewPixels(), 
+                                           handler.getPaddedImageLength(),
+                                           handler.getPaddedImageLength());
+                frames[i] = creator.createImage();
+                
+            }
+        }
+        if(getAnimationMode() == 1){
+            for(int i = 1; i <= iter; i++){
+                fractal.destroyFractal(i);
+                creator = new ImageCreator(fractal.getNewPixels(), 
+                                           handler.getPaddedImageLength(),
+                                           handler.getPaddedImageLength());
+                if(getCropWidth() == 0 || getCropHeight() == 0){
+                    setCropWidth(handler.getPaddedImageLength());
+                    setCropHeight(handler.getPaddedImageLength());
+                }
+                BufferedImage img = creator.createImage();
+                BufferedImage img2 = handler.cropImage(img,getCropWidth(), 
+                                                       getCropHeight());
+                if(img2 != null){
+                    frames[i] = img2;
+                } else {
+                    frames[i] = img;
+                }
+                
+            }
         }
     }
     
@@ -174,6 +224,8 @@ public class DrawPanel extends JPanel implements Runnable{
                         break;
                 case 2: drawImage(g2d, encryptedDecryptedImage);
                         break;
+                case 3: drawImage(g2d, frames[currFrame]);
+                        break;
         }
     }
     
@@ -211,18 +263,19 @@ public class DrawPanel extends JPanel implements Runnable{
     public void run() {
         while(true){
             
-//            try {
-//                for (int i = 1; i <= 7; i++) {
-//                    
-//                    fractal(i);
-                    repaint();
-//                    Thread.sleep(1000);
-//                }
-//                
-//                
-//            } catch (InterruptedException ex) {
-//                ex.printStackTrace(System.err);
-//            }
+            try {
+                repaint();
+                if(drawingMode == 3){
+                    Thread.sleep(1000);
+                    if(currFrame != frames.length-1){
+                        currFrame++;
+                    } else {
+                        currFrame = 0;
+                    }
+                }
+            } catch (InterruptedException ex) {
+                ex.printStackTrace(System.err);
+            }
         }
     }
     
@@ -388,5 +441,9 @@ public class DrawPanel extends JPanel implements Runnable{
         } else {
             this.cropHeight = cropHeight;
         }
+    }
+
+    public void setCurrFrame(int currFrame) {
+        this.currFrame = currFrame;
     }
 }

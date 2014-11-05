@@ -416,7 +416,8 @@ public class GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_decryptButtonActionPerformed
 
     private void animateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_animateButtonActionPerformed
-        
+        myPanel.createFrames();
+        myPanel.setCurrFrame(0);
         myPanel.setDrawingMode(3);
     }//GEN-LAST:event_animateButtonActionPerformed
 

@@ -126,7 +126,10 @@ public class ImageHandler {
     }
     
     public BufferedImage cropImage(BufferedImage src, int width, int height) {
-        BufferedImage dest = src.getSubimage(0, 0, width, height);
+        BufferedImage dest = null;
+        if(width <= src.getWidth() && height <= src.getHeight()){
+            dest = src.getSubimage(0, 0, width, height);
+        }
         return dest; 
    }
     
