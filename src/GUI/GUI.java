@@ -95,7 +95,6 @@ public class GUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("2D Affine Transformation");
-        setResizable(false);
 
         drawingPanel.setBackground(new java.awt.Color(204, 204, 204));
         drawingPanel.setPreferredSize(new java.awt.Dimension(700, 500));

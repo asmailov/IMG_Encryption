@@ -164,6 +164,11 @@ public class DrawPanel extends JPanel implements Runnable{
         }
         if(getAnimationMode() == 1){
             for(int i = 1; i <= iter; i++){
+                int[] transforms;
+                transforms = SquareDihedralGroup.inverseTransformations(getTransf());
+                fractal = new Fractal(handler.getPaddedPixels(),
+                                      handler.getPaddedImageLength(),
+                                      transforms);
                 fractal.destroyFractal(i);
                 creator = new ImageCreator(fractal.getNewPixels(), 
                                            handler.getPaddedImageLength(),
@@ -266,7 +271,7 @@ public class DrawPanel extends JPanel implements Runnable{
             try {
                 repaint();
                 if(drawingMode == 3){
-                    Thread.sleep(1000);
+                    Thread.sleep(800);
                     if(currFrame != frames.length-1){
                         currFrame++;
                     } else {
