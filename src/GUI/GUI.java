@@ -23,9 +23,11 @@
  */
 package GUI;
 
+import FileProcessing.FileHandler;
 import ImageProcessing.ImageCreator;
 import ImageProcessing.ImageHandler;
 import java.awt.HeadlessException;
+import java.io.File;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
@@ -38,6 +40,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class GUI extends javax.swing.JFrame {
     // myPanel allows us to control the jPanel we created.
     private final DrawPanel myPanel;
+    private boolean encrypted;
     /**
      * Creates new form GUI
      */
@@ -68,6 +71,13 @@ public class GUI extends javax.swing.JFrame {
         encryptButton = new javax.swing.JButton();
         iterationsLabel = new javax.swing.JLabel();
         iterationsField = new javax.swing.JFormattedTextField();
+        saveButton = new javax.swing.JButton();
+        decryptButton = new javax.swing.JButton();
+        widthField = new javax.swing.JTextField();
+        widthLabel = new javax.swing.JLabel();
+        heightLabel = new javax.swing.JLabel();
+        heightField = new javax.swing.JTextField();
+        animateButton = new javax.swing.JButton();
 
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setCurrentDirectory(new java.io.File("C:\\Users\\Alex\\Desktop"));
@@ -108,7 +118,7 @@ public class GUI extends javax.swing.JFrame {
         );
         drawingPanelLayout.setVerticalGroup(
             drawingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 509, Short.MAX_VALUE)
+            .addGap(0, 506, Short.MAX_VALUE)
         );
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "T0", "T1", "T2", "T3", "T4", "T5", "T6", "T7" }));
@@ -163,13 +173,53 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
+        saveButton.setText("Save");
+        saveButton.setEnabled(false);
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveButtonActionPerformed(evt);
+            }
+        });
+
+        decryptButton.setText("Decrypt");
+        decryptButton.setEnabled(false);
+        decryptButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                decryptButtonActionPerformed(evt);
+            }
+        });
+
+        widthField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                widthFieldFocusLost(evt);
+            }
+        });
+
+        widthLabel.setText("Width");
+
+        heightLabel.setText("Height");
+
+        heightField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                heightFieldFocusLost(evt);
+            }
+        });
+
+        animateButton.setText("Animate");
+        animateButton.setEnabled(false);
+        animateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                animateButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout menuPanelLayout = new javax.swing.GroupLayout(menuPanel);
         menuPanel.setLayout(menuPanelLayout);
         menuPanelLayout.setHorizontalGroup(
             menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(menuPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(menuPanelLayout.createSequentialGroup()
                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -177,15 +227,29 @@ public class GUI extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(widthLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(widthField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(heightLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(heightField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(menuPanelLayout.createSequentialGroup()
                         .addComponent(openButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(iterationsLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(iterationsField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(encryptButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(encryptButton)))
+                        .addComponent(decryptButton)))
+                .addGap(71, 71, 71)
+                .addGroup(menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(saveButton)
+                    .addComponent(animateButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         menuPanelLayout.setVerticalGroup(
@@ -196,13 +260,20 @@ public class GUI extends javax.swing.JFrame {
                     .addComponent(openButton)
                     .addComponent(encryptButton)
                     .addComponent(iterationsLabel)
-                    .addComponent(iterationsField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(iterationsField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(saveButton)
+                    .addComponent(decryptButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(menuPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(widthField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(widthLabel)
+                    .addComponent(heightLabel)
+                    .addComponent(heightField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(animateButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -218,7 +289,7 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(menuPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(drawingPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE))
+                .addComponent(drawingPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE))
         );
 
         pack();
@@ -258,9 +329,10 @@ public class GUI extends javax.swing.JFrame {
                         handler.getPaddedPixels(), 
                         handler.getPaddedImageLength(),
                         handler.getPaddedImageLength());
-                myPanel.setImageToEncrypt(creator.createImage());
+                myPanel.setImageToEncryptDecrypt(creator.createImage());
                 myPanel.setDrawingMode(1);
                 encryptButton.setEnabled(true);
+                decryptButton.setEnabled(true);
             }
         } catch (HeadlessException | IllegalArgumentException e){
             myPanel.setDrawingMode(0);
@@ -274,6 +346,10 @@ public class GUI extends javax.swing.JFrame {
             iterationsField.setText(Integer.toString(iterReached));
             myPanel.setIterations(iterReached);
             myPanel.setDrawingMode(2);
+            myPanel.setAnimationMode(0);
+            saveButton.setEnabled(true);
+            animateButton.setEnabled(true);
+            encrypted = true;
         } catch (Exception e){
             myPanel.setDrawingMode(1);
             e.printStackTrace(System.err);
@@ -307,6 +383,64 @@ public class GUI extends javax.swing.JFrame {
     private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox4ActionPerformed
         myPanel.setTransf(3, jComboBox4.getSelectedIndex());
     }//GEN-LAST:event_jComboBox4ActionPerformed
+
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        String path = fileChooser.getCurrentDirectory().toString();
+        String name = fileChooser.getSelectedFile().getName();
+        String[] data = name.split("\\.");
+        if (encrypted){
+            data[0] += "_encrypted";
+        } else {
+            data[0] += "_decrypted";
+        }
+        
+        path += "\\" + data[0] + "." + data[1];
+        File out = new File(path);
+        FileHandler.writeBufferedImage(myPanel.getEncryptedDecryptedImage(), "png", out);
+    }//GEN-LAST:event_saveButtonActionPerformed
+
+    private void decryptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decryptButtonActionPerformed
+        try{
+            int iterReached = myPanel.decryptImage();
+            iterationsField.setText(Integer.toString(iterReached));
+            myPanel.setIterations(iterReached);
+            myPanel.setDrawingMode(2);
+            myPanel.setAnimationMode(1);
+            saveButton.setEnabled(true);
+            animateButton.setEnabled(true);
+            encrypted = false;
+        } catch (Exception e){
+            myPanel.setDrawingMode(1);
+            e.printStackTrace(System.err);
+        }
+    }//GEN-LAST:event_decryptButtonActionPerformed
+
+    private void animateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_animateButtonActionPerformed
+        
+        myPanel.setDrawingMode(3);
+    }//GEN-LAST:event_animateButtonActionPerformed
+
+    private void widthFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_widthFieldFocusLost
+        try{
+            int width = Integer.parseInt(widthField.getText());
+            if(width > 0){
+                myPanel.setCropWidth(width);
+            }
+        } catch (NumberFormatException e){
+            widthField.setText("");
+        }
+    }//GEN-LAST:event_widthFieldFocusLost
+
+    private void heightFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_heightFieldFocusLost
+        try{
+            int height = Integer.parseInt(heightField.getText());
+            if(height > 0){
+                myPanel.setCropHeight(height);
+            }
+        } catch (NumberFormatException e){
+            heightField.setText("");
+        }
+    }//GEN-LAST:event_heightFieldFocusLost
 
     /**
      * @param args the command line arguments
@@ -343,9 +477,13 @@ public class GUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton animateButton;
+    private javax.swing.JButton decryptButton;
     private javax.swing.JPanel drawingPanel;
     private javax.swing.JButton encryptButton;
     private javax.swing.JFileChooser fileChooser;
+    private javax.swing.JTextField heightField;
+    private javax.swing.JLabel heightLabel;
     private javax.swing.JFormattedTextField iterationsField;
     private javax.swing.JLabel iterationsLabel;
     private javax.swing.JComboBox jComboBox1;
@@ -354,5 +492,8 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JPanel menuPanel;
     private javax.swing.JButton openButton;
+    private javax.swing.JButton saveButton;
+    private javax.swing.JTextField widthField;
+    private javax.swing.JLabel widthLabel;
     // End of variables declaration//GEN-END:variables
 }

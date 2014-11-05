@@ -81,4 +81,12 @@ public class SquareDihedralGroup {
         }
         return inverse;
     }
+    
+    public static int[] inverseTransformations(int[] transf){
+        int[] t = new int[4];
+        for (int i = 0; i < transf.length; i++){
+            t[i] = getInverse(transf[i]);
+        }
+        return t;
+    }
 }

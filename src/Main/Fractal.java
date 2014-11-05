@@ -46,16 +46,12 @@ public class Fractal{
     public Fractal(int[] pixels, int length, int[] transf) {
         this.pixels = pixels;
         this.length = length;
-        //this.newPixels = new int[length*length];
+//        this.newPixels = new int[length*length];
         this.newPixels = this.pixels.clone();
         setTransf(transf);
     }
     
-    public void inverseTransformations(){
-        for (int i = 0; i < transf.length; i++){
-            transf[i] = SquareDihedralGroup.getInverse(transf[i]);
-        }
-    }
+    
     
     /**
      * Creates fractal and returns the amount of iterations that were executed.
@@ -72,10 +68,10 @@ public class Fractal{
         return levelReached;
     }
     
-    public int decrypt(int iter){
+    public int destroyFractal(int iter){
         try{
             setIterations(iter);
-            recursion(pixels, length, 0, 0, 0);
+            recursion2(pixels, length, 0, 0, 0);
         } catch (IllegalArgumentException e){
             e.printStackTrace(System.err);
         }
@@ -190,36 +186,33 @@ public class Fractal{
             fix = 1;
         }
         
-        //if((level + 1 == iterations) || (iterations == 1)){
-            // Transfer pixel data from partition 1 to real image.
-            for(int i = 0; i < halfLen; i++){
-                for(int j = 0; j < halfLen; j++){
-                    newPixels[(i+y) * this.length + (j + x)] = 
-                            array0[i * halfLen + j];
-                }
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                newPixels[(i+y) * this.length + (j + x)] = 
+                        array0[i * halfLen + j];
             }
-            // Transfer pixel data from partition 2 to real image.
-            for(int i = 0; i < halfLen; i++){
-                for(int j = 0; j < halfLen; j++){
-                    newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
-                            array1[i * halfLen + j];
-                }
+        }
+        // Transfer pixel data from partition 2 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+                        array1[i * halfLen + j];
             }
-            // Transfer pixel data from partition 3 to real image.
-            for(int i = 0; i < halfLen; i++){
-                for(int j = 0; j < halfLen; j++){
-                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
-                            array2[i * halfLen + j];
-                }
+        }
+        // Transfer pixel data from partition 3 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
+                        array2[i * halfLen + j];
             }
-            // Transfer pixel data from partition 4 to real image.
-            for(int i = 0; i < halfLen; i++){
-                for(int j = 0; j < halfLen; j++){
-                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
-                            array3[i * halfLen + j];
-                }
+        }
+        // Transfer pixel data from partition 4 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
+                        array3[i * halfLen + j];
             }
-        //}
+        }
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
         recursion(array0, halfLen, x, y, level);
@@ -228,7 +221,218 @@ public class Fractal{
         recursion(array3, halfLen, x+halfLen+fix, y+halfLen+fix, level);
     }
     
-    // Setters.
+    private int[] recursion2(int[] pixels, int length, int x, 
+                                     int y, int level){
+        // Once we reach iterations level we return.
+        if (level == iterations){
+            levelReached = level;
+            return null;
+        }
+        // If we reach 1 pixel length we return.
+        if (length <= 1){
+            levelReached = level;
+            return null;
+        }
+        // Increase level.
+        level += 1;
+        // Calculate half length so we can use this variable to divide current
+        // image part into 4 sections.
+        int halfLen = length / 2;
+        // Special ocassion when we can't divide current image part 
+        // symetrically needs to be processed, so we make a flag.
+        boolean flag = false;
+        
+        if( length % 2 != 0){
+            flag = true;
+        }
+        // Transformation coefficient must be 1 for the image fractal.
+        float coeff = 1f;
+        // Arrays for new image divisions.
+        int[] array0, array1, array2, array3;
+        array0 = new int[halfLen * halfLen];
+        array1 = new int[halfLen * halfLen];
+        array2 = new int[halfLen * halfLen];
+        array3 = new int[halfLen * halfLen];
+        
+        for(int i = 0; i < length; i++){
+            for(int j = 0; j < length; j++){
+                // Create new point at the current location.
+                Point p = new Point(j, i);
+                // Transform at 1'st position.
+                if((i < halfLen) && (j < halfLen)){
+//                    SquareDihedralGroup.transform(p, transf[0],
+//                                                  coeff, halfLen);
+                    array0[p.y * halfLen + p.x] = pixels[i * length + j];
+                }
+                // Transform at 2'nd position.
+                if(!flag){
+                    if((i < halfLen) && (j >= halfLen)){
+                        p.setLocation(p.getX() - halfLen, p.getY());
+//                        SquareDihedralGroup.transform(p, transf[1],
+//                                                      coeff, halfLen);
+                        array1[p.y * halfLen + p.x] = pixels[i * length + j];
+                    }
+                } else {
+                    if((i < halfLen) && (j > halfLen)){
+                        
+                        p.setLocation(p.getX() - halfLen-1, p.getY());
+//                        SquareDihedralGroup.transform(p, transf[1],
+//                                                      coeff, halfLen);
+                        array1[p.y * halfLen + p.x] = pixels[i * length + j];
+                    }
+                }
+                // Transform at 3'rd position.
+                if(!flag){
+                    if((i >= halfLen) && (j < halfLen)){
+                        p.setLocation(p.getX(), p.getY() - halfLen);
+//                        SquareDihedralGroup.transform(p, transf[2],
+//                                                      coeff, halfLen);
+                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
+                    }
+                } else {
+                    if((i > halfLen) && (j < halfLen)){
+                        
+                        p.setLocation(p.getX(), p.getY() - halfLen-1);
+//                        SquareDihedralGroup.transform(p, transf[2],
+//                                                      coeff, halfLen);
+                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
+                    }
+                }
+                // Transform at 4'th position.
+                if(!flag){
+                    if((i >= halfLen) && (j >= halfLen)){
+                        p.setLocation(p.getX() - halfLen, p.getY() - halfLen);
+//                        SquareDihedralGroup.transform(p, transf[3],
+//                                                      coeff, halfLen);
+                        array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
+                    }
+                } else {
+                    if((i > halfLen) && (j > halfLen)){
+                        p.setLocation(p.getX() - halfLen-1, p.getY() - halfLen-1);
+//                        SquareDihedralGroup.transform(p, transf[3],
+//                                                      coeff, halfLen);
+                        array3[p.y * halfLen + p.x] = pixels[i * length + j];
+                    }
+                }
+            }
+        }
+        int fix = 0;
+        if (flag){
+            fix = 1;
+        }
+        
+        
+        // Use created arrays of pixels to go deeper until we reach
+        // level = iterations or arrays consist of one pixel.
+        
+        int[] ret0 = recursion2(array0, halfLen, x, y, level);
+        if(ret0 != null){
+            System.arraycopy(ret0, 0, array0, 0, array0.length);
+        }
+        int[] ret1 = recursion2(array1, halfLen, x+halfLen+fix, y, level);
+        if(ret1 != null){
+            System.arraycopy(ret1, 0, array1, 0, array1.length);
+        }
+        int[] ret2 = recursion2(array2, halfLen, x, y+halfLen+fix, level);
+        if(ret2 != null){
+            System.arraycopy(ret2, 0, array2, 0, array2.length);
+        }
+        int[] ret3 = recursion2(array3, halfLen, x+halfLen+fix, y+halfLen+fix, level);
+        if(ret3 != null){
+            System.arraycopy(ret3, 0, array3, 0, array3.length);
+        }
+        
+        
+        
+        int[] tmp0, tmp1, tmp2, tmp3;
+        tmp0 = new int[halfLen * halfLen];
+        tmp1 = new int[halfLen * halfLen];
+        tmp2 = new int[halfLen * halfLen];
+        tmp3 = new int[halfLen * halfLen];
+        
+//        System.out.println(transf[0]);
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                Point p = new Point(j,i);
+//                System.out.println("old "+ p);
+                SquareDihedralGroup.transform(p, transf[0], coeff, halfLen);
+//                System.out.println("new "+ p);
+                tmp0[p.y * halfLen + p.x] = array0[i * halfLen + j];
+                if(level == 2){
+//                    System.out.println(tmp0.length);
+//                        newPixels[(i+y) * this.length + (j + x)] = 
+//                                tmp0[i * halfLen + j];
+                            //array0[p.y * halfLen + p.x];
+                }
+            }
+        }
+        
+        // Transfer pixel data from partition 2 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                Point p = new Point(j,i);
+                //System.out.println("old "+ p);
+                SquareDihedralGroup.transform(p, transf[1], coeff, halfLen);
+                //System.out.println(p);
+                tmp1[p.y * halfLen + p.x] = array1[i * halfLen + j];
+                if(level == 2){
+//                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+//                        array1[p.y * halfLen + p.x];
+                }
+            }
+        }
+        // Transfer pixel data from partition 3 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                Point p = new Point(j,i);
+                SquareDihedralGroup.transform(p, transf[2], coeff, halfLen);
+                tmp2[p.y * halfLen + p.x] = array2[i * halfLen + j];
+                if(level == 2){
+//                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
+//                        array2[p.y * halfLen + p.x];
+                }
+            }
+        }
+        
+        // Transfer pixel data from partition 4 to real image.
+        for(int i = 0; i < halfLen; i++){
+            for(int j = 0; j < halfLen; j++){
+                Point p = new Point(j,i);
+                SquareDihedralGroup.transform(p, transf[3], coeff, halfLen);
+                tmp3[p.y * halfLen + p.x] = array3[i * halfLen + j];
+                if(level == 2){
+//                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
+//                        array3[p.y * halfLen + p.x];
+                }
+            }
+        }
+//        if(level ==2){// && tmp0.length == 4){
+            for(int i = 0; i < halfLen; i++){
+                for(int j = 0; j < halfLen; j++){
+    //                System.out.println(tmp0.length);
+    //                System.out.print(array0[i*halfLen + j] + ", ");
+    //                System.out.println(tmp0[i*halfLen + j]);
+                    newPixels[(i+y) * this.length + (j + x)] = 
+                                tmp0[i * halfLen + j];
+                    newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+                        tmp1[i * halfLen + j];
+                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] =
+                        tmp2[i * halfLen + j];
+                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
+                        tmp3[i * halfLen + j];
+                }
+            }
+//        }
+        int[] tmp = new int[length*length];
+        for(int i = 0; i < length; i++){
+            for(int j = 0; j < length; j++){
+                tmp[i * length + j] = newPixels[(i+y) * this.length + j+x];
+            }
+        }
+        return tmp;
+    }
+    
+    // Getters, setters.
 
     /**
      * Set iteration amount in the recursion.

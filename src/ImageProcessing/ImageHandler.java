@@ -29,6 +29,7 @@ package ImageProcessing;
  * @author Aleksandr Šmailov
  */
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import static java.lang.Math.round;
@@ -123,6 +124,12 @@ public class ImageHandler {
         }
         return paddedPixels;
     }
+    
+    public BufferedImage cropImage(BufferedImage src, int width, int height) {
+        BufferedImage dest = src.getSubimage(0, 0, width, height);
+        return dest; 
+   }
+    
     /**
      * Snatches buffered image.
      * @return buffered image.

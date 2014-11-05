@@ -27,6 +27,7 @@ package GUI;
 import ImageProcessing.ImageCreator;
 import ImageProcessing.ImageHandler;
 import Main.Fractal;
+import Main.SquareDihedralGroup;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -44,29 +45,30 @@ public class DrawPanel extends JPanel implements Runnable{
     private int xDiff, yDiff;
     
     private static Thread animator;
-    private boolean animating;
+    private int animationMode;
     private int drawingMode;
     private int speed;
     private int start;
     
     private String imagePath;
-    private BufferedImage imageToEncrypt;
-    private BufferedImage encryptedImage;
+    private BufferedImage imageToEncryptDecrypt;
+    private BufferedImage encryptedDecryptedImage;
+    private int cropWidth;
+    private int cropHeight;
     private ImageHandler handler;
     private ImageCreator creator;
     private Fractal fractal;
     private int iterations;
     private int[] transf;
     
+    private BufferedImage[] frames;
+    private int currFrame;
     /**
      * DrawPanel constructor.
      */
     public DrawPanel(){
         init();
     }
-    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/face2.jpg");
-//    ImageHandler i = new ImageHandler("C:/Users/Alex/Desktop/test4.jpg");
-    private BufferedImage img;// = i.getImage();
     
     private void drawImage(Graphics2D g, BufferedImage image){
         g.drawImage(image,x0,y0-image.getHeight()+1,null);
@@ -77,28 +79,14 @@ public class DrawPanel extends JPanel implements Runnable{
     private void init(){
         // Drawing mode 0 means no image drawing at all.
         drawingMode = 0;
-        animating = false;
+        animationMode = 0;
+        currFrame = 0;
+        cropWidth = 0;
+        cropHeight = 0;
         
         transf = new int[4];
         
         iterations = 1;
-//        int[] a = i.getPaddedPixels();
-//        int length = i.getPaddedImageLength();
-//        
-//        ImageCreator u = new ImageCreator(a, length, length);
-//        
-//        int[] transf = {1,1,1,1};
-//        Fractal f = new Fractal(a, length, transf);
-//        f.createFractal(8);
-////        u = new ImageCreator(f.getNewPixels(), length, length);
-////        img = u.createImage();
-//        
-//        Fractal ff = new Fractal(f.getNewPixels(), length, transf);
-//        ff.inverseTransformations();
-////        ff.createFractal(1);
-//        ff.decrypt(8);
-//        u = new ImageCreator(ff.getNewPixels(), length, length);
-//        img = u.createImage();
         start = 0;
         // Creating and starting new Thread so we can do animation.
         if (animator == null) {
@@ -116,21 +104,37 @@ public class DrawPanel extends JPanel implements Runnable{
         creator = new ImageCreator(fractal.getNewPixels(), 
                                    handler.getPaddedImageLength(),
                                    handler.getPaddedImageLength());
-        setEncryptedImage(creator.createImage());
+        setEncryptedDecryptedImage(creator.createImage());
         return iterReached;
     }
     
-    private void fractal(int q){
-        int[] a = i.getPaddedPixels();
-        int length = i.getPaddedImageLength();
-        ImageCreator u;
-        
-        int[] transf = {1,1,1,1};
-        Fractal f = new Fractal(a, length, transf);
-        f.createFractal(q);
-        u = new ImageCreator(f.getNewPixels(), length, length);
-        img = u.createImage();
+    public int decryptImage(){
+        handler = new ImageHandler(getImagePath());
+        int[] transforms;
+        transforms = SquareDihedralGroup.inverseTransformations(getTransf());
+        fractal = new Fractal(handler.getPaddedPixels(),
+                              handler.getPaddedImageLength(),
+                              transforms);
+        int iterReached = fractal.destroyFractal(getIterations());
+        creator = new ImageCreator(fractal.getNewPixels(), 
+                                   handler.getPaddedImageLength(),
+                                   handler.getPaddedImageLength());
+        if(getCropWidth() == 0 || getCropHeight() == 0){
+            setCropWidth(handler.getPaddedImageLength());
+            setCropHeight(handler.getPaddedImageLength());
+        }
+//        setEncryptedDecryptedImage(creator.createImage());
+        setEncryptedDecryptedImage(handler.cropImage(creator.createImage(),
+                                   getCropWidth(), getCropHeight()));
+        return iterReached;
     }
+    
+    public void createFrames(){
+        if(getAnimationMode() == 0){
+//            for(int i = 1; i < getIterations(); i)
+        }
+    }
+    
     /**
      * Method draws X and Y axes on the JPanel.
      * @param g Graphics2D
@@ -163,15 +167,12 @@ public class DrawPanel extends JPanel implements Runnable{
         // Enable antialias
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                              RenderingHints.VALUE_ANTIALIAS_ON);
-        // Draw axes.
-        //drawAxes(g2d);
-        //drawPixels(g2d);
         switch (drawingMode){
                 case 0: 
                         break;
-                case 1: drawImage(g2d, imageToEncrypt);
+                case 1: drawImage(g2d, imageToEncryptDecrypt);
                         break;
-                case 2: drawImage(g2d, encryptedImage);
+                case 2: drawImage(g2d, encryptedDecryptedImage);
                         break;
         }
     }
@@ -312,25 +313,21 @@ public class DrawPanel extends JPanel implements Runnable{
         this.imagePath = imagePath;
     }
 
-    public boolean isAnimating() {
-        return animating;
+    public void setImageToEncryptDecrypt(BufferedImage imageToEncryptDecrypt) {
+        this.imageToEncryptDecrypt = imageToEncryptDecrypt;
     }
 
-    public void setAnimating(boolean animating) {
-        this.animating = animating;
+    public void setEncryptedDecryptedImage(BufferedImage encryptedDecryptedImage) {
+        this.encryptedDecryptedImage = encryptedDecryptedImage;
     }
-
-    public void setImageToEncrypt(BufferedImage imageToEncrypt) {
-        this.imageToEncrypt = imageToEncrypt;
-    }
-
-    public void setEncryptedImage(BufferedImage encryptedImage) {
-        this.encryptedImage = encryptedImage;
+    
+    public BufferedImage getEncryptedDecryptedImage() {
+        return encryptedDecryptedImage;
     }
     
     public void setDrawingMode(int drawingMode) throws IllegalArgumentException{
-        if(drawingMode < 0 || drawingMode > 2){
-            String err = "Drawing mode must be in 0-2 range!";
+        if(drawingMode < 0 || drawingMode > 3){
+            String err = "Drawing mode must be in 0-3 range!";
             throw new IllegalArgumentException(err);
         } else {
             this.drawingMode = drawingMode;
@@ -351,5 +348,45 @@ public class DrawPanel extends JPanel implements Runnable{
 
     public int[] getTransf() {
         return transf;
+    }
+
+    public int getAnimationMode() {
+        return animationMode;
+    }
+
+    public void setAnimationMode(int animationMode) throws IllegalArgumentException{
+        if(animationMode < 0 || animationMode > 1){
+            String err = "Animation mode must be in 0-1 range!";
+            throw new IllegalArgumentException(err);
+        } else {
+            this.animationMode = animationMode;
+        }
+    }
+
+    public int getCropWidth() {
+        return cropWidth;
+    }
+
+    public void setCropWidth(int cropWidth) throws IllegalArgumentException{
+        if(cropWidth < 0){
+            String err = "Crop width must be postive number!";
+            throw new IllegalArgumentException(err);
+        } else {
+            this.cropWidth = cropWidth;
+        }
+        
+    }
+
+    public int getCropHeight() {
+        return cropHeight;
+    }
+
+    public void setCropHeight(int cropHeight) throws IllegalArgumentException{
+        if(cropHeight < 0){
+            String err = "Crop height must be postive number!";
+            throw new IllegalArgumentException(err);
+        } else {
+            this.cropHeight = cropHeight;
+        }
     }
 }
