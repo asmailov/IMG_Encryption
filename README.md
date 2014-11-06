@@ -7,4 +7,5 @@ User can also view the animation of the whole process.
 Once encrypted, image can be distributed freely and work as a public key. Only people with the private key are able to decrypt and view original image.
 
 PUBLIC KEY - encrypted image.
+
 PRIVATE KEY - sequence of transformations (example: [1, 2, 7, 3]), number of iterations, original picture's width and height.
