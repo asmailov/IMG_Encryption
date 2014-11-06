@@ -24,18 +24,16 @@
 
 package ImageProcessing;
 
-/**
- *
- * @author Aleksandr Šmailov
- */
-
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import static java.lang.Math.round;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
-    
+
+/**
+ *
+ * @author Aleksandr Šmailov
+ */
 public class ImageHandler {
     
     private BufferedImage  image;
@@ -52,6 +50,7 @@ public class ImageHandler {
      */
     public ImageHandler(String file) {
         try {
+            // Open file, get width, height.
             File input = new File(file);
             image = ImageIO.read(input);
             width = image.getWidth();
@@ -59,7 +58,7 @@ public class ImageHandler {
             
             int size = width * height;
             pixels = new int[size];
-            
+            // Copy pixel data from image.
             int count = 0;
             for(int i=0; i<height; i++){
                 for(int j=0; j<width; j++){
@@ -79,12 +78,12 @@ public class ImageHandler {
         int[] grayValues = new int[pixels.length];
         int count = 0;
         int red,green,blue;
-        
+        // Analyze data from pixels array.
         for (int i = 0; i < pixels.length; i++){
             red   = (pixels[i] >> 16) & 0xff;
             green = (pixels[i] >>  8) & 0xff;
             blue  = (pixels[i]) & 0xff;
-            
+            // Turn RGB data into grayscale.
             red = (int)round((red * 0.299));
             green = (int)round((green * 0.587));
             blue = (int)round((blue *0.114));
@@ -92,6 +91,7 @@ public class ImageHandler {
             grayValues[count] = red + green + blue;
             count++;
         }
+        // Return new array of grayscale values.
         return grayValues;
     }
     /**
@@ -125,6 +125,13 @@ public class ImageHandler {
         return paddedPixels;
     }
     
+    /**
+     * Crops image.
+     * @param src source of buffered image.
+     * @param width width of soon to be cropped image.
+     * @param height height of soon to be cropped image.
+     * @return cropped image.
+     */
     public BufferedImage cropImage(BufferedImage src, int width, int height) {
         BufferedImage dest = null;
         if(width <= src.getWidth() && height <= src.getHeight()){

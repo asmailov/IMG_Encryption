@@ -47,7 +47,6 @@ public class DrawPanel extends JPanel implements Runnable{
     private static Thread animator;
     private int animationMode;
     private int drawingMode;
-    private int speed;
     private int start;
     
     private String imagePath;
@@ -95,6 +94,10 @@ public class DrawPanel extends JPanel implements Runnable{
         }
     }
     
+    /**
+     * Encrypt image.
+     * @return iteration(level) reached.
+     */
     public int encryptImage(){
         handler = new ImageHandler(getImagePath());
         fractal = new Fractal(handler.getPaddedPixels(),
@@ -108,6 +111,10 @@ public class DrawPanel extends JPanel implements Runnable{
         return iterReached;
     }
     
+    /**
+     * Decrypt image.
+     * @return iteration(level) reached.
+     */
     public int decryptImage(){
         handler = new ImageHandler(getImagePath());
         int[] transforms;
@@ -134,24 +141,14 @@ public class DrawPanel extends JPanel implements Runnable{
         return iterReached;
     }
     
-    private int checkMaxLevel(){
-        handler = new ImageHandler(getImagePath());
-        fractal = new Fractal(handler.getPaddedPixels(),
-                              handler.getPaddedImageLength(),
-                              getTransf());
-        int iterReached = fractal.createFractal(getIterations());
-        return iterReached;
-    }
-    
+    /**
+     * Create animation frames.
+     */
     public void createFrames(){
-        int iter;
-        if(getIterations() < checkMaxLevel()){
-            iter = getIterations();
-        } else {
-            iter = checkMaxLevel();
-        }
+        int iter = getIterations();
         frames = new BufferedImage[iter+1];
         frames[0] = imageToEncryptDecrypt;
+        // If animation mode 0 then we need to create encryption frames.
         if(getAnimationMode() == 0){
             for(int i = 1; i <= iter; i++){
                 fractal.createFractal(i);
@@ -162,10 +159,12 @@ public class DrawPanel extends JPanel implements Runnable{
                 
             }
         }
+        // If animation mode 1 then we need to create decryption frames.
         if(getAnimationMode() == 1){
             for(int i = 1; i <= iter; i++){
                 int[] transforms;
-                transforms = SquareDihedralGroup.inverseTransformations(getTransf());
+                transforms = SquareDihedralGroup.inverseTransformations(
+                        getTransf());
                 fractal = new Fractal(handler.getPaddedPixels(),
                                       handler.getPaddedImageLength(),
                                       transforms);
@@ -222,13 +221,18 @@ public class DrawPanel extends JPanel implements Runnable{
         // Enable antialias
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                              RenderingHints.VALUE_ANTIALIAS_ON);
+        // Draws differend images depending on the drawing mode.
         switch (drawingMode){
                 case 0: 
+                    // No drawing at alltogether.
                         break;
+                    // Draw starting image.
                 case 1: drawImage(g2d, imageToEncryptDecrypt);
                         break;
+                    // Draw encrypted/decrypted image.
                 case 2: drawImage(g2d, encryptedDecryptedImage);
                         break;
+                    // Draw (animation) current frame.
                 case 3: drawImage(g2d, frames[currFrame]);
                         break;
         }
@@ -267,11 +271,10 @@ public class DrawPanel extends JPanel implements Runnable{
     @Override
     public void run() {
         while(true){
-            
             try {
                 repaint();
                 if(drawingMode == 3){
-                    Thread.sleep(800);
+                    Thread.sleep(700);
                     if(currFrame != frames.length-1){
                         currFrame++;
                     } else {
@@ -318,21 +321,6 @@ public class DrawPanel extends JPanel implements Runnable{
     public void setY0(int y0) {
         this.y0 = y0;
     }
-    
-    /**
-     * @return speed of animation.
-     */
-    public int getSpeed() {
-        return speed;
-    }
-
-    /**
-     * @param speed speed of animation.
-     */
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
     /**
      * @return x coordinate of previous mouse location(one tick from current).
      */
@@ -363,26 +351,49 @@ public class DrawPanel extends JPanel implements Runnable{
         this.yDiff = yDiff;
     }
 
+    /**
+     * @return image path.
+     */
     public String getImagePath() {
         return imagePath;
     }
 
+    /**
+     * Set image path.
+     * @param imagePath image path.
+     */
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 
+    /**
+     * @param imageToEncryptDecrypt image we want to encrypt or decrypt.
+     */
     public void setImageToEncryptDecrypt(BufferedImage imageToEncryptDecrypt) {
         this.imageToEncryptDecrypt = imageToEncryptDecrypt;
     }
 
-    public void setEncryptedDecryptedImage(BufferedImage encryptedDecryptedImage) {
+    /**
+     * @param encryptedDecryptedImage encrypted/decrypted image.
+     */
+    private void setEncryptedDecryptedImage(
+            BufferedImage encryptedDecryptedImage) {
         this.encryptedDecryptedImage = encryptedDecryptedImage;
     }
     
+    /**
+     * @return encrypted/decrypted image.
+     */
     public BufferedImage getEncryptedDecryptedImage() {
         return encryptedDecryptedImage;
     }
     
+    /**
+     * Sets drawing mode. (0 - nothing, 1 - starting image, 2 - encrypted or
+     * decrypted image, 3 - animation)
+     * @param drawingMode drawing mode.
+     * @throws IllegalArgumentException
+     */
     public void setDrawingMode(int drawingMode) throws IllegalArgumentException{
         if(drawingMode < 0 || drawingMode > 3){
             String err = "Drawing mode must be in 0-3 range!";
@@ -392,27 +403,50 @@ public class DrawPanel extends JPanel implements Runnable{
         }
     }
 
+    /**
+     * Set number of iterations we want to do.
+     * @param iterations number of iterations.
+     */
     public void setIterations(int iterations) {
         this.iterations = iterations;
     }
     
+    /**
+     * @return number of iterations we want to do.
+     */
     public int getIterations() {
         return iterations;
     }
     
+    /**
+     * Set specific transformation at {@link DrawPanel#transf} array.
+     * @param i position in {@link DrawPanel#transf} array.
+     * @param transf transformation (0-7).
+     */
     public void setTransf(int i, int transf){
         this.transf[i] = transf;
     }
 
+    /**
+     * @return transformation array.
+     */
     public int[] getTransf() {
         return transf;
     }
 
+    /**
+     * @return animation mode.
+     */
     public int getAnimationMode() {
         return animationMode;
     }
 
-    public void setAnimationMode(int animationMode) throws IllegalArgumentException{
+    /**
+     * @param animationMode animation mode we want to use.
+     * @throws IllegalArgumentException when mode is not within (0-1) range.
+     */
+    public void setAnimationMode(int animationMode) 
+            throws IllegalArgumentException{
         if(animationMode < 0 || animationMode > 1){
             String err = "Animation mode must be in 0-1 range!";
             throw new IllegalArgumentException(err);
@@ -421,10 +455,19 @@ public class DrawPanel extends JPanel implements Runnable{
         }
     }
 
+    /**
+     * @return cropping width which we use for decrypted image cropping. 
+     */
     public int getCropWidth() {
         return cropWidth;
     }
 
+    /**
+     * Set width for cropping.
+     * @param cropWidth width for cropping.
+     * @throws IllegalArgumentException when trying to set width as negative
+     * number.
+     */
     public void setCropWidth(int cropWidth) throws IllegalArgumentException{
         if(cropWidth < 0){
             String err = "Crop width must be postive number!";
@@ -435,10 +478,19 @@ public class DrawPanel extends JPanel implements Runnable{
         
     }
 
+    /**
+     * @return cropping height which we use for decrypted image cropping. 
+     */
     public int getCropHeight() {
         return cropHeight;
     }
 
+    /**
+     * Set height for cropping.
+     * @param cropHeight height for cropping.
+     * @throws IllegalArgumentException when trying to set width as negative
+     * number.
+     */
     public void setCropHeight(int cropHeight) throws IllegalArgumentException{
         if(cropHeight < 0){
             String err = "Crop height must be postive number!";
@@ -448,6 +500,9 @@ public class DrawPanel extends JPanel implements Runnable{
         }
     }
 
+    /**
+     * @param currFrame frame of animation we are currently want to show.
+     */
     public void setCurrFrame(int currFrame) {
         this.currFrame = currFrame;
     }

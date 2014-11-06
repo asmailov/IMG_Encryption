@@ -31,6 +31,13 @@ import java.awt.Point;
  */
 public class SquareDihedralGroup {
     
+    /**
+     * Transforms point.
+     * @param p point to transform.
+     * @param type type of transformation (0-8).
+     * @param coefficient resize coefficient.
+     * @param vectorLength length of vector for a push.
+     */
     public static void transform(Point p, int type, float coefficient, 
                                  int vectorLength){
         vectorLength -= 1;
@@ -59,9 +66,14 @@ public class SquareDihedralGroup {
         }
     }
     
-    public static int getInverse(int transform){
+    /**
+     * Returns inverted transformation type.
+     * @param type type of transformation to invert.
+     * @return inverted transformation type.
+     */
+    public static int getInverseTransfType(int type){
         int inverse = 0;
-        switch (transform){
+        switch (type){
             case 0: inverse = 0;
                 break;
             case 1: inverse = 3;
@@ -82,10 +94,14 @@ public class SquareDihedralGroup {
         return inverse;
     }
     
+    /**
+     * @param transf transformations array to inverse.
+     * @return inverse transformations.
+     */
     public static int[] inverseTransformations(int[] transf){
         int[] t = new int[4];
         for (int i = 0; i < transf.length; i++){
-            t[i] = getInverse(transf[i]);
+            t[i] = getInverseTransfType(transf[i]);
         }
         return t;
     }

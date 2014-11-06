@@ -34,6 +34,12 @@ import javax.imageio.ImageIO;
  */
 public class FileHandler {
     
+    /**
+     * Writes image to a file.
+     * @param i image to write to a file.
+     * @param s format name.
+     * @param f output file.
+     */
     public static void writeBufferedImage(RenderedImage i, String s, File f){
         try {
             ImageIO.write(i, s, f);

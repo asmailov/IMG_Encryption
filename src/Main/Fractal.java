@@ -31,12 +31,12 @@ import java.awt.Point;
  */
 public class Fractal{
     private final int[] pixels;
+    private final int[] newPixels;
+    
     private final int length;
     private int[] transf;
     private int iterations;
     private int levelReached;
-    
-    private final int[] newPixels;
 
     /**
      * @param pixels pixels of the image.
@@ -46,7 +46,6 @@ public class Fractal{
     public Fractal(int[] pixels, int length, int[] transf) {
         this.pixels = pixels;
         this.length = length;
-//        this.newPixels = new int[length*length];
         this.newPixels = this.pixels.clone();
         setTransf(transf);
     }
@@ -55,23 +54,13 @@ public class Fractal{
     
     /**
      * Creates fractal and returns the amount of iterations that were executed.
-     * @param iter amount of iterations.
+     * @param iter number of iterations.
      * @return level reached.
      */
     public int createFractal(int iter){
         try{
             setIterations(iter);
-            recursion(pixels, length, 0, 0, 0);
-        } catch (IllegalArgumentException e){
-            e.printStackTrace(System.err);
-        }
-        return levelReached;
-    }
-    
-    public int destroyFractal(int iter){
-        try{
-            setIterations(iter);
-            recursion2(pixels, length, 0, 0, 0);
+            encryptRecursion(pixels, length, 0, 0, 0);
         } catch (IllegalArgumentException e){
             e.printStackTrace(System.err);
         }
@@ -79,14 +68,31 @@ public class Fractal{
     }
     
     /**
-     * Main function of creating fractal from the image.
+     * Destroys fractal and thus decrypts data.
+     * @param iter number of iterations.
+     * @return level reached.
+     */
+    public int destroyFractal(int iter){
+        try{
+            setIterations(iter);
+            decryptRecursion(pixels, length, 0, 0, 0);
+        } catch (IllegalArgumentException e){
+            e.printStackTrace(System.err);
+        }
+        return levelReached;
+    }
+    
+    /**
+     * Main function of creating fractal and encrypting the image.
      * @param pixels pixels array of current level.
      * @param length length of the pixels array.
-     * @param x x coordinate of difference vector.
-     * @param y y coordinate of difference vector.
-     * @param level current level in recursion.
+     * @param x x coordinate of difference vector which let's us know where we
+     * are at certain level in the whole picture.
+     * @param y y coordinate of difference vector which let's us know where we
+     * are at certain level in the whole picture.
+     * @param level current level(iteration) in recursion.
      */
-    private void recursion(int[] pixels, int length, int x, 
+    private void encryptRecursion(int[] pixels, int length, int x, 
                                      int y, int level){
         // Once we reach iterations level we return.
         if (level == iterations){
@@ -106,7 +112,6 @@ public class Fractal{
         // Special ocassion when we can't divide current image part 
         // symetrically needs to be processed, so we make a flag.
         boolean flag = false;
-        
         if( length % 2 != 0){
             flag = true;
         }
@@ -140,7 +145,7 @@ public class Fractal{
                 } else {
                     if((i < halfLen) && (j > halfLen)){
                         
-                        p.setLocation(p.getX() - halfLen-1, p.getY());
+                        p.setLocation(p.getX() - halfLen - 1, p.getY());
                         SquareDihedralGroup.transform(p, transf[1],
                                                       coeff, halfLen);
                         array1[p.y * halfLen + p.x] = pixels[i * length + j];
@@ -157,7 +162,7 @@ public class Fractal{
                 } else {
                     if((i > halfLen) && (j < halfLen)){
                         
-                        p.setLocation(p.getX(), p.getY() - halfLen-1);
+                        p.setLocation(p.getX(), p.getY() - halfLen - 1);
                         SquareDihedralGroup.transform(p, transf[2],
                                                       coeff, halfLen);
                         array2[p.y * halfLen + p.x] = pixels[i * length + j];
@@ -173,7 +178,8 @@ public class Fractal{
                     }
                 } else {
                     if((i > halfLen) && (j > halfLen)){
-                        p.setLocation(p.getX() - halfLen-1, p.getY() - halfLen-1);
+                        p.setLocation(p.getX() - halfLen - 1, 
+                                      p.getY() - halfLen - 1);
                         SquareDihedralGroup.transform(p, transf[3],
                                                       coeff, halfLen);
                         array3[p.y * halfLen + p.x] = pixels[i * length + j];
@@ -181,47 +187,50 @@ public class Fractal{
                 }
             }
         }
+        // When flag is true, we need to add 1, so the image encrypts properly.
         int fix = 0;
         if (flag){
             fix = 1;
         }
-        
+        // Transfer pixel data from partition 1 to real image.s
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + (j + x)] = 
+                newPixels[(i + y) * this.length + (j + x)] = 
                         array0[i * halfLen + j];
             }
         }
         // Transfer pixel data from partition 2 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+                newPixels[(i + y) * this.length + (j + x +halfLen) + fix] = 
                         array1[i * halfLen + j];
             }
         }
         // Transfer pixel data from partition 3 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
+                newPixels[(i + y + halfLen + fix) * this.length  + (j + x)] = 
                         array2[i * halfLen + j];
             }
         }
         // Transfer pixel data from partition 4 to real image.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
-                        array3[i * halfLen + j];
+                newPixels[(i + y + halfLen + fix) * this.length  + 
+                          (j + x + halfLen)+ fix] = 
+                                array3[i * halfLen + j];
             }
         }
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
-        recursion(array0, halfLen, x, y, level);
-        recursion(array1, halfLen, x+halfLen+fix, y, level);
-        recursion(array2, halfLen, x, y+halfLen+fix, level);
-        recursion(array3, halfLen, x+halfLen+fix, y+halfLen+fix, level);
+        encryptRecursion(array0, halfLen, x, y, level);
+        encryptRecursion(array1, halfLen, x + halfLen + fix, y, level);
+        encryptRecursion(array2, halfLen, x, y + halfLen + fix, level);
+        encryptRecursion(array3, halfLen, x + halfLen + fix, 
+                         y + halfLen + fix, level);
     }
     
-    private int[] recursion2(int[] pixels, int length, int x, 
+    private int[] decryptRecursion(int[] pixels, int length, int x, 
                                      int y, int level){
         // Once we reach iterations level we return.
         if (level == iterations){
@@ -241,7 +250,6 @@ public class Fractal{
         // Special ocassion when we can't divide current image part 
         // symetrically needs to be processed, so we make a flag.
         boolean flag = false;
-        
         if( length % 2 != 0){
             flag = true;
         }
@@ -256,180 +264,126 @@ public class Fractal{
         
         for(int i = 0; i < length; i++){
             for(int j = 0; j < length; j++){
-                // Create new point at the current location.
-                Point p = new Point(j, i);
-                // Transform at 1'st position.
+                // Copy 1'st partition pixels.
                 if((i < halfLen) && (j < halfLen)){
-//                    SquareDihedralGroup.transform(p, transf[0],
-//                                                  coeff, halfLen);
-                    array0[p.y * halfLen + p.x] = pixels[i * length + j];
+                    array0[i * halfLen + j] = pixels[i * length + j];
                 }
-                // Transform at 2'nd position.
+                // Copy 2'nd partition pixels.
                 if(!flag){
                     if((i < halfLen) && (j >= halfLen)){
-                        p.setLocation(p.getX() - halfLen, p.getY());
-//                        SquareDihedralGroup.transform(p, transf[1],
-//                                                      coeff, halfLen);
-                        array1[p.y * halfLen + p.x] = pixels[i * length + j];
+                        array1[i * halfLen + j - halfLen] = 
+                                pixels[i * length + j];
                     }
                 } else {
                     if((i < halfLen) && (j > halfLen)){
-                        
-                        p.setLocation(p.getX() - halfLen-1, p.getY());
-//                        SquareDihedralGroup.transform(p, transf[1],
-//                                                      coeff, halfLen);
-                        array1[p.y * halfLen + p.x] = pixels[i * length + j];
+                        array1[i * halfLen + j - halfLen - 1] = 
+                                pixels[i * length + j];
                     }
                 }
-                // Transform at 3'rd position.
+                // Copy 3'rd partition pixels.
                 if(!flag){
                     if((i >= halfLen) && (j < halfLen)){
-                        p.setLocation(p.getX(), p.getY() - halfLen);
-//                        SquareDihedralGroup.transform(p, transf[2],
-//                                                      coeff, halfLen);
-                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
+                        array2[(i - halfLen) * halfLen + j] = 
+                                pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j < halfLen)){
-                        
-                        p.setLocation(p.getX(), p.getY() - halfLen-1);
-//                        SquareDihedralGroup.transform(p, transf[2],
-//                                                      coeff, halfLen);
-                        array2[p.y * halfLen + p.x] = pixels[i * length + j];
+                        array2[(i - halfLen - 1) * halfLen + j] = 
+                                pixels[i * length + j];
                     }
                 }
-                // Transform at 4'th position.
+                // Copy 4'th partition pixels.
                 if(!flag){
                     if((i >= halfLen) && (j >= halfLen)){
-                        p.setLocation(p.getX() - halfLen, p.getY() - halfLen);
-//                        SquareDihedralGroup.transform(p, transf[3],
-//                                                      coeff, halfLen);
-                        array3[(p.y) * halfLen + p.x] = pixels[i * length + j];
+                        array3[(i - halfLen) * halfLen + j - halfLen] = 
+                                pixels[i * length + j];
                     }
                 } else {
                     if((i > halfLen) && (j > halfLen)){
-                        p.setLocation(p.getX() - halfLen-1, p.getY() - halfLen-1);
-//                        SquareDihedralGroup.transform(p, transf[3],
-//                                                      coeff, halfLen);
-                        array3[p.y * halfLen + p.x] = pixels[i * length + j];
+                        array3[(i - halfLen - 1) * halfLen + j - halfLen - 1] = 
+                                pixels[i * length + j];
                     }
                 }
             }
         }
+        // When flag is true, we need to add 1, so the image decrypts properly.
         int fix = 0;
         if (flag){
             fix = 1;
         }
-        
-        
         // Use created arrays of pixels to go deeper until we reach
         // level = iterations or arrays consist of one pixel.
-        
-        int[] ret0 = recursion2(array0, halfLen, x, y, level);
-        if(ret0 != null){
-            System.arraycopy(ret0, 0, array0, 0, array0.length);
+        // Also save return values.
+        int[] returnArray0 = decryptRecursion(array0, halfLen, x, y, level);
+        if(returnArray0 != null){
+            System.arraycopy(returnArray0, 0, array0, 0, array0.length);
         }
-        int[] ret1 = recursion2(array1, halfLen, x+halfLen+fix, y, level);
-        if(ret1 != null){
-            System.arraycopy(ret1, 0, array1, 0, array1.length);
+        int[] returnArray1 = decryptRecursion(array1, halfLen, x+halfLen+fix, 
+                                              y, level);
+        if(returnArray1 != null){
+            System.arraycopy(returnArray1, 0, array1, 0, array1.length);
         }
-        int[] ret2 = recursion2(array2, halfLen, x, y+halfLen+fix, level);
-        if(ret2 != null){
-            System.arraycopy(ret2, 0, array2, 0, array2.length);
+        int[] returnArray2 = decryptRecursion(array2, halfLen, x, y+halfLen+fix,
+                                              level);
+        if(returnArray2 != null){
+            System.arraycopy(returnArray2, 0, array2, 0, array2.length);
         }
-        int[] ret3 = recursion2(array3, halfLen, x+halfLen+fix, y+halfLen+fix, level);
-        if(ret3 != null){
-            System.arraycopy(ret3, 0, array3, 0, array3.length);
+        int[] returnArray3 = decryptRecursion(array3, halfLen, x+halfLen+fix, 
+                                              y+halfLen+fix, level);
+        if(returnArray3 != null){
+            System.arraycopy(returnArray3, 0, array3, 0, array3.length);
         }
         
-        
-        
+        // Create temporary arrays.
         int[] tmp0, tmp1, tmp2, tmp3;
         tmp0 = new int[halfLen * halfLen];
         tmp1 = new int[halfLen * halfLen];
         tmp2 = new int[halfLen * halfLen];
         tmp3 = new int[halfLen * halfLen];
         
-//        System.out.println(transf[0]);
+        // Transform point so we know where to write copy data from array, thus
+        // decrypting current iterations's pixels.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                Point p = new Point(j,i);
-//                System.out.println("old "+ p);
-                SquareDihedralGroup.transform(p, transf[0], coeff, halfLen);
-//                System.out.println("new "+ p);
-                tmp0[p.y * halfLen + p.x] = array0[i * halfLen + j];
-                if(level == 2){
-//                    System.out.println(tmp0.length);
-//                        newPixels[(i+y) * this.length + (j + x)] = 
-//                                tmp0[i * halfLen + j];
-                            //array0[p.y * halfLen + p.x];
-                }
+                Point p1 = new Point(j,i);
+                SquareDihedralGroup.transform(p1, transf[0], coeff, halfLen);
+                tmp0[p1.y * halfLen + p1.x] = array0[i * halfLen + j];
+                Point p2 = new Point(j,i);
+                SquareDihedralGroup.transform(p2, transf[1], coeff, halfLen);
+                tmp1[p2.y * halfLen + p2.x] = array1[i * halfLen + j];
+                Point p3 = new Point(j,i);
+                SquareDihedralGroup.transform(p3, transf[2], coeff, halfLen);
+                tmp2[p3.y * halfLen + p3.x] = array2[i * halfLen + j];
+                Point p4 = new Point(j,i);
+                SquareDihedralGroup.transform(p4, transf[3], coeff, halfLen);
+                tmp3[p4.y * halfLen + p4.x] = array3[i * halfLen + j];
             }
         }
         
-        // Transfer pixel data from partition 2 to real image.
+        // Copy current level's decrypted data.
         for(int i = 0; i < halfLen; i++){
             for(int j = 0; j < halfLen; j++){
-                Point p = new Point(j,i);
-                //System.out.println("old "+ p);
-                SquareDihedralGroup.transform(p, transf[1], coeff, halfLen);
-                //System.out.println(p);
-                tmp1[p.y * halfLen + p.x] = array1[i * halfLen + j];
-                if(level == 2){
-//                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
-//                        array1[p.y * halfLen + p.x];
-                }
-            }
-        }
-        // Transfer pixel data from partition 3 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                Point p = new Point(j,i);
-                SquareDihedralGroup.transform(p, transf[2], coeff, halfLen);
-                tmp2[p.y * halfLen + p.x] = array2[i * halfLen + j];
-                if(level == 2){
-//                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] = 
-//                        array2[p.y * halfLen + p.x];
-                }
+                newPixels[(i+y) * this.length + (j + x)] = 
+                    tmp0[i * halfLen + j];
+                newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
+                    tmp1[i * halfLen + j];
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] =
+                    tmp2[i * halfLen + j];
+                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
+                    tmp3[i * halfLen + j];
             }
         }
         
-        // Transfer pixel data from partition 4 to real image.
-        for(int i = 0; i < halfLen; i++){
-            for(int j = 0; j < halfLen; j++){
-                Point p = new Point(j,i);
-                SquareDihedralGroup.transform(p, transf[3], coeff, halfLen);
-                tmp3[p.y * halfLen + p.x] = array3[i * halfLen + j];
-                if(level == 2){
-//                newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
-//                        array3[p.y * halfLen + p.x];
-                }
-            }
-        }
-//        if(level ==2){// && tmp0.length == 4){
-            for(int i = 0; i < halfLen; i++){
-                for(int j = 0; j < halfLen; j++){
-    //                System.out.println(tmp0.length);
-    //                System.out.print(array0[i*halfLen + j] + ", ");
-    //                System.out.println(tmp0[i*halfLen + j]);
-                    newPixels[(i+y) * this.length + (j + x)] = 
-                                tmp0[i * halfLen + j];
-                    newPixels[(i+y) * this.length + (j + x +halfLen)+fix] = 
-                        tmp1[i * halfLen + j];
-                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x)] =
-                        tmp2[i * halfLen + j];
-                    newPixels[(i+y+halfLen+fix) * this.length  + (j + x + halfLen)+fix] = 
-                        tmp3[i * halfLen + j];
-                }
-            }
-//        }
-        int[] tmp = new int[length*length];
+        // Copy decrypted data into one array.
+        int[] decryptedData = new int[length*length];
         for(int i = 0; i < length; i++){
             for(int j = 0; j < length; j++){
-                tmp[i * length + j] = newPixels[(i+y) * this.length + j+x];
+                decryptedData[i * length + j] = newPixels[(i+y) * this.length + j+x];
             }
         }
-        return tmp;
+        
+        // Return decrypted data.
+        return decryptedData;
     }
     
     // Getters, setters.
@@ -447,6 +401,7 @@ public class Fractal{
             throw new IllegalArgumentException(err);
         }
     }
+    
     /**
      * Sets transformation array.
      * @param transf transformation array.
@@ -477,6 +432,4 @@ public class Fractal{
     public int[] getNewPixels() {
         return newPixels;
     }
-    
-    
 }

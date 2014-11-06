@@ -323,17 +323,21 @@ public class GUI extends javax.swing.JFrame {
             if (approve == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().toString();
                 myPanel.setImagePath(path);
+                // Create image handler and image creator.
                 ImageHandler handler = new ImageHandler(path);
                 ImageCreator creator = new ImageCreator(
                         handler.getPaddedPixels(), 
                         handler.getPaddedImageLength(),
                         handler.getPaddedImageLength());
                 myPanel.setImageToEncryptDecrypt(creator.createImage());
+                // Draw image.
                 myPanel.setDrawingMode(1);
+                // Once we open file we can encrypt/decrypt.
                 encryptButton.setEnabled(true);
                 decryptButton.setEnabled(true);
             }
         } catch (HeadlessException | IllegalArgumentException e){
+            // Don't draw anything.
             myPanel.setDrawingMode(0);
             e.printStackTrace(System.err);
         }
@@ -342,10 +346,14 @@ public class GUI extends javax.swing.JFrame {
     private void encryptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encryptButtonActionPerformed
         try{
             int iterReached = myPanel.encryptImage();
+            // Write which level(iteration) we managed to reach.
             iterationsField.setText(Integer.toString(iterReached));
+            // Set iteration reached.
             myPanel.setIterations(iterReached);
+            // Draw encrypted/decrypted image.
             myPanel.setDrawingMode(2);
             myPanel.setAnimationMode(0);
+            // Allow saving and animating.
             saveButton.setEnabled(true);
             animateButton.setEnabled(true);
             encrypted = true;
@@ -357,11 +365,13 @@ public class GUI extends javax.swing.JFrame {
 
     private void iterationsFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_iterationsFieldFocusLost
         try{
+            // Check if input is positive number and is not equal to zero.
             int iter = Integer.parseInt(iterationsField.getText());
             if(iter > 0){
                 myPanel.setIterations(iter);
             }
         } catch (NumberFormatException e){
+            // Otherwise set field and iterations amount to 1.
             iterationsField.setText("1");
             myPanel.setIterations(1);
         }
@@ -392,7 +402,7 @@ public class GUI extends javax.swing.JFrame {
         } else {
             data[0] += "_decrypted";
         }
-        
+        // Create path for new file.
         path += "\\" + data[0] + "." + data[1];
         File out = new File(path);
         FileHandler.writeBufferedImage(myPanel.getEncryptedDecryptedImage(), "png", out);
